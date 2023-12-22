@@ -1,15 +1,20 @@
 import { all, delay, put, takeEvery } from 'redux-saga/effects';
 import {
+  addUserSuccess,
+  addUserFailure,
   loginStart,
   loginSuccess,
   loginFailure,
-  addUserSuccess,
-  addUserFailure,
+  getUserSuccess,
+  getUserFailure,
+  logout,
+  clearError,
   SIGNUP,
   SIGNIN,
-  clearError,
+  GETUSER,
+  LOGOUT,
 } from 'models/users';
-import { signInApi, signUpApi } from 'API/users';
+import { signInApi, signUpApi, getUserApi, logOutApi } from 'API/users';
 import { UserState } from './types';
 import { PayloadAction } from '@reduxjs/toolkit';
 
@@ -35,8 +40,6 @@ function* signUpSaga(action: PayloadAction<UserState>) {
       addUserFailure(
         errorText === 'has already been taken'
           ? 'Имя пользователя занято'
-          : errorText
-          ? errorText
           : 'Ошибка при регистрации. Перезагрузите страницу или попробуйте позднее'
       )
     );
@@ -67,14 +70,49 @@ function* signInSaga(action: PayloadAction<UserState>) {
       loginFailure(
         errorText === 'username or password is invalid'
           ? 'Неверное имя пользователя или пароль'
-          : errorText
-          ? errorText
           : 'Ошибка при авторизации. Перезагрузите страницу или попробуйте позднее'
       )
     );
     yield delay(5000);
     yield put(clearError());
     console.log(error);
+  }
+}
+
+function* getUserSaga(action: PayloadAction<number>) {
+  try {
+    const response: Response = yield getUserApi();
+
+    if (!response.ok) {
+      throw new Error();
+    }
+
+    const user: UserState = yield response.json();
+
+    yield put(getUserSuccess(user));
+  } catch (error: any) {
+    console.error(
+      'Ошибка при авторизации. Перезагрузите страницу или попробуйте позднее: ',
+      error
+    );
+    yield put(getUserFailure());
+  }
+}
+
+function* logOutSaga(action: PayloadAction<number>) {
+  try {
+    const response: Response = yield logOutApi();
+
+    if (!response.ok) {
+      throw new Error();
+    }
+
+    console.log(response);
+
+    yield put(logout());
+    localStorage.removeItem('user');
+  } catch (error: any) {
+    console.error('Ошибка при выходе из системы: ', error);
   }
 }
 
@@ -86,6 +124,14 @@ function* watchSignIn() {
   yield takeEvery(SIGNIN, signInSaga);
 }
 
+function* watchGetUser() {
+  yield takeEvery(GETUSER, getUserSaga);
+}
+
+function* watchLogOut() {
+  yield takeEvery(LOGOUT, logOutSaga);
+}
+
 export default function* usersSaga() {
-  yield all([watchSignUp(), watchSignIn()]);
+  yield all([watchSignUp(), watchSignIn(), watchGetUser(), watchLogOut()]);
 }

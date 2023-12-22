@@ -29,7 +29,7 @@ const FormSignUp = () => {
         const username = values.username;
         const password = values.password;
         const password_confirmation = values.password_confirmation;
-        const is_admin = true;
+        const is_admin = false;
 
         dispatch(
           createUser({

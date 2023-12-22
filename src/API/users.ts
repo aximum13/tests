@@ -30,6 +30,7 @@ export const signInApi = async (username: string, password: string) => {
     'https://interns-test-fe.snp.agency/api/v1/signin',
     {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
@@ -38,6 +39,37 @@ export const signInApi = async (username: string, password: string) => {
         username,
         password,
       }),
+    }
+  );
+  return response;
+};
+
+export const getUserApi = async () => {
+  const response = await fetch(
+    `https://interns-test-fe.snp.agency/api/v1/users/current`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
+    }
+  );
+
+  return response;
+};
+
+export const logOutApi = async () => {
+  const response = await fetch(
+    'https://interns-test-fe.snp.agency/api/v1/logout',
+    {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
     }
   );
   return response;

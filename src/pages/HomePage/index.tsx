@@ -1,21 +1,61 @@
-import { logout } from 'models/users';
+import { logOutUser } from 'models/users';
 import { isUser } from 'models/users/selectors';
 import { useAppDispatch, useAppSelector } from 'hooks';
 
 import Title from 'components/Title';
 
+import styles from './HomePage.module.sass';
+import classNames from 'classnames';
+import { Link } from 'react-router-dom';
+import { getTests } from 'models/tests';
+import { allTests, isLoadTests } from 'models/tests/selectors';
+import { useEffect, useState } from 'react';
+import Spin from 'components/Spin';
+
 const HomePage = () => {
+  const [testsLoaded, setTestsLoaded] = useState(false);
+
   const user = useAppSelector(isUser);
+  const tests = useAppSelector(allTests);
+
   const dispatch = useAppDispatch();
-  const handleLogOut = () => dispatch(logout());
+
+  useEffect(() => {
+    dispatch(getTests());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (tests.tests.length > 0) {
+      setTestsLoaded(true);
+    }
+  }, [tests]);
+
+  const loading = useAppSelector(isLoadTests);
+
+  const handleLogOut = () => dispatch(logOutUser());
 
   return (
     <>
-      <Title title={`Привет,  ${user?.username}`} />
+      <div className={classNames(styles.Header)}>
+        <Title className={styles.Title} title={`Привет,  ${user?.username}`} />
+        <button onClick={handleLogOut}>Выйти </button>
+      </div>
 
-      <p>{user?.username}</p>
+      <div className={classNames(styles.TableHead)}>
+        {user?.is_admin && <Link to="/new-test">Добавить тест</Link>}
+        <input type="text" placeholder="Название теста" />
+      </div>
 
-      <button onClick={handleLogOut}>Выйти </button>
+      {loading && <Spin />}
+      <ul className={classNames(styles.TableTest)}>
+        {testsLoaded &&
+          tests.tests.map((test) => (
+            <li key={test.id} className={classNames(styles.TestItem)}>
+              <p className={classNames(styles.s)}>{test.title}</p>
+              {user?.is_admin && <button>Редактировать тест</button>}
+            </li>
+          ))}
+      </ul>
     </>
   );
 };

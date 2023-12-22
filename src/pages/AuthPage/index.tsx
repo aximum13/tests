@@ -1,21 +1,23 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAppSelector } from 'hooks';
+import { isError } from 'models/users/selectors';
 
 import Title from 'components/Title';
 import { FormSignUp, FormSignIn } from 'components/Form';
 import message from 'antd/es/message';
 
 import styles from './AuthPage.module.sass';
-import { isError } from 'models/users/selectors';
 
 const AuthPage = () => {
   const [signUp, setSignUp] = useState(false);
 
   const error = useAppSelector(isError);
 
-  error && message.error(error, 4);
+  useEffect(() => {
+    error && message.error(error, 4);
+  });
 
   const handleAuth = () => {
     setSignUp(!signUp);

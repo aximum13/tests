@@ -46,3 +46,14 @@ export const signInValid = Yup.object().shape({
     .min(6, 'Введите не менее 6 символов')
     .max(50, 'Введите не более 50 символов'),
 });
+
+export const addTestValid = Yup.object().shape({
+  title: Yup.string()
+    .transform((value) => (value ? value.trim() : value))
+    .required('Введите назвавние теста')
+    .test('notOnlyWhitespace', 'Введите назвавние теста', (value) => {
+      return /\S/.test(value);
+    })
+    .min(3, 'Введите не менее 3 символов')
+    .max(100, 'Введите не более 100 символов'),
+});

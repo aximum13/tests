@@ -1,5 +1,4 @@
 export type UsersState = {
-  users: UserState[];
   user?: UserState | null;
   error?: string | null;
   loading?: boolean;

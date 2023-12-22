@@ -7,8 +7,8 @@ const isUser = localStorage.getItem('user');
 const user: UserState = isUser ? JSON.parse(isUser) : null;
 
 const initialState: UsersState = {
-  users: [],
   user: user || null,
+
   loading: false,
   error: null,
 };
@@ -18,16 +18,24 @@ const usersSlice = createSlice({
   initialState,
   reducers: {
     addUserSuccess: (state, action: PayloadAction<UserState>) => {
-      state.users.push(action.payload);
+      const user = action.payload;
+      state.user = user;
     },
 
     addUserFailure: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
+      state.loading = false;
     },
 
-    getUser: (state, action: PayloadAction<UserState>) => {
+    getUserSuccess: (state, action: PayloadAction<UserState>) => {
       const user = action.payload;
       state.user = user;
+      state.loading = false;
+      state.error = null;
+    },
+
+    getUserFailure: (state) => {
+      state.loading = false;
     },
 
     loginStart: (state) => {
@@ -44,7 +52,10 @@ const usersSlice = createSlice({
     },
     logout: (state) => {
       state.user = null;
-      localStorage.removeItem('user');
+      
+    },
+    isLoading: (state) => {
+      state.loading = true;
     },
     clearError: (state) => {
       state.error = null;
@@ -65,17 +76,25 @@ export const signInUser = createAction(
   })
 );
 
+export const GETUSER = 'users/getUser';
+export const getUser = createAction(GETUSER);
+
+export const LOGOUT = 'users/logOutUser';
+export const logOutUser = createAction(LOGOUT);
+
 const { actions, reducer } = usersSlice;
 
 export const {
   addUserSuccess,
   addUserFailure,
-  getUser,
+  getUserSuccess,
+  getUserFailure,
   loginStart,
   loginSuccess,
   loginFailure,
   logout,
   clearError,
+  isLoading,
 } = actions;
 
 export default reducer;
