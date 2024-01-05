@@ -21,13 +21,11 @@ const HomePage = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getTests());
-  }, [dispatch]);
+    !tests.tests.length && dispatch(getTests());
+  }, [dispatch, tests]);
 
   useEffect(() => {
-    if (tests.tests.length > 0) {
-      setTestsLoaded(true);
-    }
+    tests.tests.length && setTestsLoaded(true);
   }, [tests]);
 
   const loading = useAppSelector(isLoadTests);
@@ -52,7 +50,11 @@ const HomePage = () => {
           tests.tests.map((test) => (
             <li key={test.id} className={classNames(styles.TestItem)}>
               <p className={classNames(styles.s)}>{test.title}</p>
-              {user?.is_admin && <button>Редактировать тест</button>}
+              {user?.is_admin && (
+                <Link className={styles.TextDetail} to={`edit/${test.id}`}>
+                  Редактировать тест
+                </Link>
+              )}
             </li>
           ))}
       </ul>

@@ -5,45 +5,44 @@ import { useAppDispatch } from 'hooks';
 import { addTestValid } from 'utils/validation';
 
 import { Button } from 'antd';
-import { createTest } from 'models/tests';
+import { createTest, editTest } from 'models/tests';
 
-import styles from './NewTestPage.module.sass';
+import styles from './Form.module.sass';
+import { QuestState, TestState } from 'models/tests/types';
+import { createAnswer } from '../../models/tests/index';
 
-const NewTestPage = () => {
-  const initialValues = {
-    title: '',
-  };
-
+const FormEditTitle: React.FC<TestState> = ({
+  title,
+  created_at,
+  id,
+  questions,
+}) => {
   const dispatch = useAppDispatch();
-
+  const initialValues = {
+    title,
+    created_at,
+    id,
+    questions,
+  };
   return (
     <Formik
       initialValues={initialValues}
-      // validationSchema={editTestValid}
       onSubmit={(
-        values: {
-          title: string;
-        },
-        {
-          setSubmitting,
-        }: FormikHelpers<{
-          title: string;
-        }>
+        values: TestState,
+        { setSubmitting }: FormikHelpers<TestState>
       ) => {
-        const title: string = values.title;
-
-        dispatch(createTest(title));
-
+        const title: TestState = values;
+        dispatch(editTest(title));
         setSubmitting(false);
       }}
     >
       {({ errors, touched }) => (
-        <Form className={classNames(styles.FormSignUp)}>
-          <label className={classNames(styles.Label)}>
+        <Form className={classNames(styles.FormEdit)}>
+          <label className={classNames(styles.LabelEdit)}>
             <Field
               type="text"
               autoComplete="off"
-              className={classNames(styles.Field)}
+              className={classNames(styles.FieldEdit, styles.Field)}
               name="title"
               placeholder="Название теста"
             />
@@ -53,12 +52,12 @@ const NewTestPage = () => {
           </label>
 
           <Button
-            className={classNames(styles.Button)}
+            className={classNames(styles.ButtonEdit)}
             type="primary"
             htmlType="submit"
             size="large"
           >
-            Создать
+            Изменить
           </Button>
         </Form>
       )}
@@ -66,4 +65,4 @@ const NewTestPage = () => {
   );
 };
 
-export default NewTestPage;
+export default FormEditTitle;

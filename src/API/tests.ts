@@ -1,4 +1,4 @@
-import { TestState } from 'models/tests/types';
+import { QuestState, TestState } from 'models/tests/types';
 
 export const newTestApi = async (title: string) => {
   const response = await fetch(
@@ -28,6 +28,7 @@ export const newQuestApi = async (
     `https://interns-test-fe.snp.agency/api/v1/tests/${id}/questions`,
     {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
@@ -43,14 +44,16 @@ export const newQuestApi = async (
 };
 
 export const newAnswerApi = async (
-  id: number,
+  testId: number,
+  questionId: number,
   text: string,
   is_right: boolean
 ) => {
   const response = await fetch(
-    `https://interns-test-fe.snp.agency/api/v1/questions/${id}/answers`,
+    `https://interns-test-fe.snp.agency/api/v1/tests/${testId}/questions/${questionId}/answers`,
     {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
@@ -79,18 +82,57 @@ export const getTestsApi = async () => {
   return response;
 };
 
+export const getTestApi = async (id: number) => {
+  const response = await fetch(
+    `https://interns-test-fe.snp.agency/api/v1/tests/${id}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
+    }
+  );
+  return response;
+};
+
 export const editTestApi = async (
   id: number,
   updatedData: Partial<TestState>
 ) => {
-  const response = await fetch(`http://localhost:3001/tests/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
-    },
-    body: JSON.stringify(updatedData),
-  });
+  const response = await fetch(
+    `https://interns-test-fe.snp.agency/api/v1/tests/${id}`,
+    {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
+      body: JSON.stringify(updatedData),
+    }
+  );
+
+  return response;
+};
+
+export const editQuestApi = async (
+  id: number,
+  updatedData: Partial<QuestState>
+) => {
+  const response = await fetch(
+    `https://interns-test-fe.snp.agency/api/v1/questions/${id}`,
+    {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
+      body: JSON.stringify(updatedData),
+    }
+  );
 
   return response;
 };

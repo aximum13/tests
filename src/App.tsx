@@ -11,6 +11,7 @@ import Spin from 'components/Spin';
 import Container from 'components/Container';
 
 import './styles/app.sass';
+import EditTestPage from 'pages/EditTestPage';
 
 const App = () => {
   const loading = useAppSelector(isLoad);
@@ -26,13 +27,23 @@ const App = () => {
         {isUser ? (
           <Route path="/" element={<Container />}>
             <Route index element={<HomePage />} />
-            <Route path="/signup" element={<Navigate to="/" />} />
+            <Route path="signup" element={<Navigate to="/" />} />
             <Route path="new-test" element={<NewTestPage />} />
+            <Route
+              path="edit/:id"
+              element={
+                isUser?.is_admin ? (
+                  <EditTestPage />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         ) : (
           <>
-            <Route path="/signup" element={<Container />}>
+            <Route path="signup" element={<Container />}>
               <Route index element={<AuthPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/signup" replace />} />

@@ -1,6 +1,6 @@
 export type AllTestsState = {
   testsData: TestsState;
-  test?: string | null;
+  test?: TestState | null;
   error?: string | null;
   loading?: boolean;
 };
@@ -11,19 +11,22 @@ export type TestsState = {
 };
 
 export type TestState = {
-  created_at: string;
   id: number;
-  questions: [];
+  created_at: string;
+  questions: QuestState[];
   title: string;
 };
 
 export type QuestState = {
+  id: number;
   title: string;
   question_type: string;
   answer: number;
+  answers?: AnswerState[];
 };
 
 export type AnswerState = {
+  id: number;
   text: string;
   is_right: boolean;
 };
