@@ -50,16 +50,24 @@ const testsSlice = createSlice({
 
       const { id, questions, title } = action.payload;
 
-      state.testsData.tests = state.testsData.tests.map((test: TestState) => {
-        if (test.id === id) {
-          return {
-            ...test,
-            title,
-            questions,
-          };
-        }
-        return test;
-      });
+      state.testsData.tests = state.testsData.tests.map((test: TestState) =>
+        test.id === id
+          ? {
+              ...test,
+              title,
+              questions,
+            }
+          : test
+      );
+    },
+
+    deleteTestSuccess: (state, action: PayloadAction<number>) => {
+      if (state.test) {
+        const testId = action.payload;
+        state.testsData.tests = state.testsData.tests.filter(
+          (test) => test.id !== testId
+        );
+      }
     },
 
     // Новый вопрос
@@ -88,24 +96,29 @@ const testsSlice = createSlice({
 
     deleteQuestionSuccess: (state, action: PayloadAction<number>) => {
       if (state.test) {
-        const questionId = action.payload;
+        const idQuestion = action.payload;
         state.test.questions = state.test.questions.filter(
-          (question) => question.id !== questionId
+          (question) => question.id !== idQuestion
         );
       }
     },
 
     // Новый ответ
 
-    addAnswerSuccess: (state, action: PayloadAction<AnswerState>) => {
+    addAnswerSuccess: (
+      state,
+      action: PayloadAction<AnswerState & { idQuestion: number }>
+    ) => {
       state.loading = false;
-      if (state.test) {
-        const questionIndex = state.test.questions.findIndex(
-          (question) => question.id === action.payload.id
+      const questions = state.test?.questions;
+
+      if (state.test && questions) {
+        const questionIndex = questions.findIndex(
+          (question) => question.id === action.payload.idQuestion
         );
 
         if (questionIndex !== -1) {
-          state.test.questions[questionIndex].answers?.push(action.payload);
+          questions[questionIndex].answers?.push(action.payload);
         }
       }
     },
@@ -129,20 +142,51 @@ const testsSlice = createSlice({
       }
     },
 
+    reorderedAnswerSuccess: (
+      state,
+      action: PayloadAction<Partial<AnswerState>>
+    ) => {
+      const { id, position } = action.payload;
+
+      if (state.test) {
+        const question = state.test.questions.find((question) =>
+          question.answers?.some((answer) => answer.id === id)
+        );
+
+        if (question) {
+          const answers = question.answers || [];
+          const movedAnswer = answers.find((answer) => answer.id === id);
+
+          if (movedAnswer && position) {
+            // Удаление перемещаемого ответа из списка
+            const filteredAnswers = answers.filter(
+              (answer) => answer.id !== id
+            );
+
+            // Вставка перемещаемого ответа на новую позицию
+            filteredAnswers.splice(position, 0, movedAnswer);
+
+            // Обновление порядка ответов в вопросе
+            question.answers = filteredAnswers;
+          }
+        }
+      }
+    },
+
     // Удаление ответа
 
     deleteAnswerSuccess: (
       state,
-      action: PayloadAction<{ questionId: number; answerId: number }>
+      action: PayloadAction<{ idQuestion: number; idAnswer: number }>
     ) => {
       if (state.test) {
-        const { questionId, answerId } = action.payload;
+        const { idQuestion, idAnswer } = action.payload;
         const question = state.test.questions.find(
-          (question) => question.id === questionId
+          (question) => question.id === idQuestion
         );
         if (question && question.answers) {
           question.answers = question.answers.filter(
-            (answer) => answer.id !== answerId
+            (answer) => answer.id !== idAnswer
           );
         }
       }
@@ -190,7 +234,12 @@ export const deleteTest = createAction(DELETE_TEST, (payload: number) => ({
 export const NEW_QUESTION = 'tests/newQuestion';
 export const createQuestion = createAction(
   NEW_QUESTION,
-  (payload: { title: string; question_type: string; answer: number }) => ({
+  (payload: {
+    title: string;
+    question_type: string;
+    answer: number;
+    idTest: number;
+  }) => ({
     payload,
   })
 );
@@ -214,7 +263,7 @@ export const deleteQuestion = createAction(
 export const NEW_ANSWER = 'tests/newAnswer';
 export const createAnswer = createAction(
   NEW_ANSWER,
-  (payload: { text: string; is_right: boolean }) => ({
+  (payload: { text: string; is_right: boolean; idQuestion: number }) => ({
     payload,
   })
 );
@@ -223,15 +272,24 @@ export const EDIT_ANSWER = 'tests/editAnswer';
 export const editAnswer = createAction(EDIT_ANSWER, (payload: AnswerState) => ({
   payload,
 }));
-const { actions, reducer } = testsSlice;
+
+export const REORDER_ANSWER = 'tests/reorderAnswer';
+export const reorderAnswer = createAction(
+  REORDER_ANSWER,
+  (payload: { id: number; position: number }) => ({
+    payload,
+  })
+);
 
 export const DELETE_ANSWER = 'tests/deleteAnswer';
 export const deleteAnswer = createAction(
   DELETE_ANSWER,
-  (payload: { questionId: number; answerId: number }) => ({
+  (payload: { idQuestion: number; idAnswer: number }) => ({
     payload,
   })
 );
+
+const { actions, reducer } = testsSlice;
 
 export const {
   addTestSuccess,
@@ -239,11 +297,13 @@ export const {
   getTestStart,
   getTestSuccess,
   editTestSuccess,
+  deleteTestSuccess,
   addQuestionSuccess,
   editQuestionSuccess,
   deleteQuestionSuccess,
   addAnswerSuccess,
   editAnswerSuccess,
+  reorderedAnswerSuccess,
   deleteAnswerSuccess,
   isLoading,
   isFailure,

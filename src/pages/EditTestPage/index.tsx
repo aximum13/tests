@@ -2,11 +2,10 @@ import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
-import { getTest } from 'models/tests';
+import { deleteTest, getTest } from 'models/tests';
 import { allTests, isLoadTests, isTest } from 'models/tests/selectors';
 
 import FormEditTitle from 'components/Form/FormEditTitle';
-import FormEditQuestions from 'components/Form/FormEditQuestion';
 import FormAddQuestion from 'components/Form/FormAddQuestion';
 import ModalCmp from 'components/Modal/Modal';
 import Spin from 'components/Spin';
@@ -15,6 +14,7 @@ import Select from 'antd/es/select';
 import { Button } from 'antd';
 
 import styles from './EditTestPage.module.sass';
+import QuestionEdit from 'components/QuestionEdit';
 
 const EditTestPage = () => {
   const [editTitle, setEditTitle] = useState('');
@@ -57,15 +57,7 @@ const EditTestPage = () => {
     ? test
     : { title: '', created_at: '', questions: [] };
 
-  const quests = test?.questions || [];
-
   console.log(test, test?.title, questions);
-
-  const [isEditQuestion, setIsEditQuestion] = useState(false);
-
-  const handleModalEditQuestion = () => {
-    setIsEditQuestion(!isEditQuestion);
-  };
 
   const [isNewQuestion, setIsNewQuestion] = useState(false);
 
@@ -73,45 +65,44 @@ const EditTestPage = () => {
     setIsNewQuestion(!isNewQuestion);
   };
 
+  const handleDeleteTest = () => {
+    test && dispatch(deleteTest(test.id));
+  };
+
   return (
     <>
       {loading && <Spin />}
+      <Link className={styles.HomeLink} to={'/'}>
+        Вернуться на главную страницу
+      </Link>
       {testLoaded && (
-        <>
+        <div className={styles.EditPage}>
           <FormEditTitle
             id={idTest}
-            questions={quests}
+            questions={questions}
             title={title}
             created_at={created_at}
           />
-          <div className={styles.QuestionsList}>
-            {quests &&
-              quests.length > 0 &&
-              quests.map(({ id, title, answer, question_type }) => (
-                <div key={id} className={styles.QuestionsItem}>
-                  <Button onClick={handleModalAddQuestion}>
-                    Редактировать
-                  </Button>
-                  <div>{title}</div>
-                  <Button>Удалить</Button>
-                  <ModalCmp
-                    content={
-                      <FormEditQuestions
-                        id={id}
-                        idTest={idTest}
-                        title={title}
-                        answer={answer}
-                        question_type={question_type}
-                      />
-                    }
-                    isOpen={isNewQuestion}
-                    handleCancel={handleModalAddQuestion}
+          {questions && questions.length > 0 && (
+            <>
+              <h2 className={styles.TitleQuestionList}>Список вопросов</h2>
+              <div className={styles.QuestionsList}>
+                {questions.map(({ id, title, answer, question_type }) => (
+                  <QuestionEdit
+                    id={id}
+                    title={title}
+                    idTest={idTest}
+                    answer={answer}
+                    question_type={question_type}
+                    key={id}
                   />
-                </div>
-              ))}
-          </div>
+                ))}
+              </div>
+            </>
+          )}
           <div className={styles.AddQuestion}>
             <Select
+              className={styles.BtnTypeQuestion}
               placeholder="Тип вопроса"
               onChange={handleChangeTypeAnswer}
               options={[
@@ -130,19 +121,23 @@ const EditTestPage = () => {
               ]}
             ></Select>
 
-            <Button onClick={handleModalEditQuestion}>Добавить вопрос</Button>
+            <Button onClick={handleModalAddQuestion}>Добавить вопрос</Button>
           </div>
-        </>
+
+          <div className={styles.TestFooter}>
+            <Button onClick={handleDeleteTest}>Удалить тест</Button>
+          </div>
+        </div>
       )}
 
-      <Link to={'/'}>Вернуться на главную страницу</Link>
-
       <ModalCmp
+        width={600}
+        title={'Добавить вопрос'}
         content={
           <FormAddQuestion question_type={questionType} idTest={idTest} />
         }
-        isOpen={isEditQuestion}
-        handleCancel={handleModalEditQuestion}
+        isOpen={isNewQuestion}
+        handleCancel={handleModalAddQuestion}
       />
     </>
   );

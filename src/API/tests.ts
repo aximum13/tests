@@ -44,13 +44,12 @@ export const newQuestApi = async (
 };
 
 export const newAnswerApi = async (
-  testId: number,
   questionId: number,
   text: string,
   is_right: boolean
 ) => {
   const response = await fetch(
-    `https://interns-test-fe.snp.agency/api/v1/tests/${testId}/questions/${questionId}/answers`,
+    `https://interns-test-fe.snp.agency/api/v1/questions/${questionId}/answers`,
     {
       method: 'POST',
       credentials: 'include',
@@ -131,6 +130,91 @@ export const editQuestApi = async (
         'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
       },
       body: JSON.stringify(updatedData),
+    }
+  );
+
+  return response;
+};
+
+export const editAnswerApi = async (
+  id: number,
+  updatedData: Partial<QuestState>
+) => {
+  const response = await fetch(
+    `https://interns-test-fe.snp.agency/api/v1/answers/${id}`,
+    {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
+      body: JSON.stringify(updatedData),
+    }
+  );
+
+  return response;
+};
+
+export const reorderAnswerApi = async (id: number, position: number) => {
+  const response = await fetch(
+    `https://interns-test-fe.snp.agency/api/v1/answers/${id}/insert_at/${position}`,
+    {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
+      body: JSON.stringify(position),
+    }
+  );
+
+  return response;
+};
+
+export const deleteTestApi = async (id: number) => {
+  const response = await fetch(
+    `https://interns-test-fe.snp.agency/api/v1/tests/${id}`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
+    }
+  );
+
+  return response;
+};
+
+export const deleteQuestApi = async (id: number) => {
+  const response = await fetch(
+    `https://interns-test-fe.snp.agency/api/v1/questions/${id}`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
+    }
+  );
+
+  return response;
+};
+
+export const deleteAnswerApi = async (id: number) => {
+  const response = await fetch(
+    `https://interns-test-fe.snp.agency/api/v1/answers/${id}`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Scope-Key': 's-U6!x@$P>dAE.`r5W7q_#',
+      },
     }
   );
 

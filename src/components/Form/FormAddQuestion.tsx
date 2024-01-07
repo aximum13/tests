@@ -8,12 +8,12 @@ import { Button } from 'antd';
 import { createQuestion } from 'models/tests';
 
 import styles from './Form.module.sass';
-import { useState } from 'react';
 
 interface QuestionState {
   title: string;
   question_type: string;
   answer: number;
+  idTest: number;
 }
 
 interface Props {
@@ -22,10 +22,11 @@ interface Props {
 }
 
 const FormAddQuestion: React.FC<Props> = ({ question_type, idTest }) => {
-  const initialValues = {
+  const initialValues: QuestionState = {
     title: '',
     question_type,
     answer: 0,
+    idTest,
   };
 
   const dispatch = useAppDispatch();
@@ -38,23 +39,19 @@ const FormAddQuestion: React.FC<Props> = ({ question_type, idTest }) => {
         values: QuestionState,
         { setSubmitting }: FormikHelpers<QuestionState>
       ) => {
-        // console.log({
-        //   title: values.title,
-        //   question_type,
-        //   answer: 0,
-        //   idTest,
-        // });
+        setSubmitting(true);
         dispatch(
           createQuestion({
             title: values.title,
             question_type,
             answer: 0,
+            idTest,
           })
         );
         setSubmitting(false);
       }}
     >
-      {({ errors, touched }) => (
+      {({ errors, touched, isSubmitting, handleSubmit }) => (
         <>
           <Form className={classNames(styles.FormEdit)}>
             {question_type === 'single' && (
@@ -76,49 +73,54 @@ const FormAddQuestion: React.FC<Props> = ({ question_type, idTest }) => {
                 </label>
               </>
             )}
-            {/* {question_type === 'multiple' && (
-            <>
-              {' '}
-              <label className={classNames(styles.LabelEdit)}>
-                <Field
-                  type="text"
-                  autoComplete="off"
-                  className={classNames(styles.FieldEdit, styles.Field)}
-                  name="title"
-                  placeholder="Введите вопрос"
-                />
-                {errors.title && touched.title ? (
-                  <div className={classNames(styles.Error)}>{errors.title}</div>
-                ) : null}
-              </label>
-            </>
-          )}
+            {question_type === 'multiple' && (
+              <>
+                {' '}
+                <label className={classNames(styles.LabelEdit)}>
+                  <Field
+                    type="text"
+                    autoComplete="off"
+                    className={classNames(styles.FieldEdit, styles.Field)}
+                    name="title"
+                    placeholder="Введите вопрос"
+                  />
+                  {errors.title && touched.title ? (
+                    <div className={classNames(styles.Error)}>
+                      {errors.title}
+                    </div>
+                  ) : null}
+                </label>
+              </>
+            )}
 
-          {question_type === 'number' && (
-            <>
-              {' '}
-              <label className={classNames(styles.LabelEdit)}>
-                <Field
-                  type="text"
-                  autoComplete="off"
-                  className={classNames(styles.FieldEdit, styles.Field)}
-                  name="title"
-                  placeholder="Введите вопрос"
-                />
-                {errors.title && touched.title ? (
-                  <div className={classNames(styles.Error)}>{errors.title}</div>
-                ) : null}
-              </label>
-            </>
-          )} */}
+            {question_type === 'number' && (
+              <>
+                {' '}
+                <label className={classNames(styles.LabelEdit)}>
+                  <Field
+                    type="number"
+                    autoComplete="off"
+                    className={classNames(styles.FieldEdit, styles.Field)}
+                    name="title"
+                    placeholder="Введите вопрос"
+                  />
+                  {errors.title && touched.title ? (
+                    <div className={classNames(styles.Error)}>
+                      {errors.title}
+                    </div>
+                  ) : null}
+                </label>
+              </>
+            )}
 
             <Button
               className={classNames(styles.ButtonEdit)}
               type="primary"
+              disabled={isSubmitting}
               htmlType="submit"
               size="large"
             >
-              Сохранить
+              {isSubmitting ? 'Отправка...' : 'Отправить'}
             </Button>
           </Form>
         </>

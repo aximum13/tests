@@ -9,7 +9,7 @@ import { createTest, editTest } from 'models/tests';
 
 import styles from './Form.module.sass';
 import { QuestState, TestState } from 'models/tests/types';
-import { createAnswer } from '../../models/tests/index';
+import { createAnswer } from '../../models/tests';
 
 const FormEditTitle: React.FC<TestState> = ({
   title,
@@ -31,14 +31,16 @@ const FormEditTitle: React.FC<TestState> = ({
         values: TestState,
         { setSubmitting }: FormikHelpers<TestState>
       ) => {
-        const title: TestState = values;
-        dispatch(editTest(title));
+        const test: TestState = values;
+        dispatch(editTest(test));
         setSubmitting(false);
       }}
     >
       {({ errors, touched }) => (
-        <Form className={classNames(styles.FormEdit)}>
+        <Form className={classNames(styles.FormEditTitleTest)}>
           <label className={classNames(styles.LabelEdit)}>
+            {' '}
+            Изменить название теста
             <Field
               type="text"
               autoComplete="off"

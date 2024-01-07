@@ -1,31 +1,43 @@
 import classNames from 'classnames';
-import { Field, FieldArray, Form, Formik, FormikHelpers } from 'formik';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
 import { addTestValid } from 'utils/validation';
 
 import { Button } from 'antd';
-import {
-  createAnswer,
-  createQuestion,
-  createTest,
-  editTest,
-} from 'models/tests';
+import { editAnswer } from 'models/tests';
 
 import styles from './Form.module.sass';
-import { AnswerState, QuestState, TestState } from 'models/tests/types';
+import { AnswerState } from 'models/tests/types';
 import { useState } from 'react';
 
-type Values = AnswerState & { answer: number };
+interface Values {
+  id: number;
+  text: string;
+  is_right: boolean;
+  position: number;
+}
 
-const FormEditAnswer: React.FC<Values> = ({ id, text, is_right, answer }) => {
+interface Props {
+  answer?: number;
+}
+
+const FormEditAnswer: React.FC<Values & Props> = ({
+  id,
+  text,
+  is_right,
+  answer,
+  position,
+}) => {
   const [answers, setAnswers] = useState(answer);
   const initialValues: Values = {
     id,
-    answer: answers,
     text,
     is_right,
+    position,
   };
+
+  const dispatch = useAppDispatch();
 
   return (
     <Formik
@@ -33,22 +45,27 @@ const FormEditAnswer: React.FC<Values> = ({ id, text, is_right, answer }) => {
       // validationSchema={editTestValid}
       onSubmit={(values: Values, { setSubmitting }: FormikHelpers<Values>) => {
         const test: AnswerState = values;
-        // createAnswer(test);
+        dispatch(editAnswer(test));
         setSubmitting(false);
       }}
     >
       {({ errors, touched }) => (
-        <Form className={classNames(styles.FormEdit)}>
-          <label>
-            {`Ответ #${answers + 1}`}
+        <Form className={classNames(styles.FormEditAnswer)}>
+          <label className={classNames(styles.EditAnswerText)}>
+            {`Ответ #${answers ? answers + 1 : 1}`}
             <Field
+              className={classNames(styles.EditAnswerText)}
               type="text"
               autoComplete="off"
-              name="answer"
+              name="text"
               placeholder="Введите ответ"
             />
           </label>
-          <Field type="radio" id={`answers.${answers}`} name="answers" />
+          <Field
+            className={classNames(styles.ButtonEditIsRight)}
+            type="checkbox"
+            name="is_right"
+          />
 
           <Button
             className={classNames(styles.ButtonEdit)}
@@ -56,7 +73,7 @@ const FormEditAnswer: React.FC<Values> = ({ id, text, is_right, answer }) => {
             htmlType="submit"
             size="large"
           >
-            Сохранить
+            Изменить
           </Button>
         </Form>
       )}

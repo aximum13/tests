@@ -29,4 +29,5 @@ export type AnswerState = {
   id: number;
   text: string;
   is_right: boolean;
+  position: number;
 };

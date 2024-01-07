@@ -1,32 +1,49 @@
 import { all, delay, put, takeEvery } from 'redux-saga/effects';
 import {
-  addTestSuccess,
-  isFailure,
-  getTestsSuccess,
-  clearError,
   NEW_TEST,
   GET_TESTS,
-  EDIT_TEST,
-  editTestSuccess,
-  getTestSuccess,
   GET_TEST,
-  getTestStart,
-  addQuestionSuccess,
+  EDIT_TEST,
+  DELETE_TEST,
   NEW_QUESTION,
-  NEW_ANSWER,
-  addAnswerSuccess,
   EDIT_QUESTION,
+  DELETE_QUESTION,
+  NEW_ANSWER,
+  EDIT_ANSWER,
+  DELETE_ANSWER,
+  //Test
+  addTestSuccess,
+  getTestsSuccess,
+  getTestSuccess,
+  editTestSuccess,
+  deleteTestSuccess,
+  //Question
+  addQuestionSuccess,
   editQuestionSuccess,
+  deleteQuestionSuccess,
+  //Answer
+  addAnswerSuccess,
+  editAnswerSuccess,
+  deleteAnswerSuccess,
   isLoading,
+  isFailure,
+  clearError,
+  REORDER_ANSWER,
+  reorderedAnswerSuccess,
 } from '.';
 import {
-  editQuestApi,
-  editTestApi,
-  getTestApi,
-  getTestsApi,
-  newAnswerApi,
-  newQuestApi,
   newTestApi,
+  getTestsApi,
+  getTestApi,
+  editTestApi,
+  deleteTestApi,
+  newQuestApi,
+  editQuestApi,
+  deleteQuestApi,
+  newAnswerApi,
+  editAnswerApi,
+  deleteAnswerApi,
+  reorderAnswerApi,
 } from 'API/tests';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { AnswerState, QuestState, TestState, TestsState } from './types';
@@ -173,6 +190,36 @@ function* watchEditTest() {
   yield takeEvery(EDIT_TEST, editTestSaga);
 }
 
+function* deleteTestSaga(action: PayloadAction<number>) {
+  try {
+    const testId = action.payload;
+
+    const response: Response = yield deleteTestApi(testId);
+
+    if (!response.ok) {
+      const errorResponse: { error: string } = yield response.json();
+      throw new Error(
+        errorResponse.error || 'Ошибка запроса при удалении теста'
+      );
+    }
+
+    yield put(deleteTestSuccess(testId));
+  } catch (error: any) {
+    console.error('Ошибка при удалении теста:', error);
+
+    let errorMessage = 'Ошибка при удалении теста. Попробуйте еще раз';
+    errorMessage = error.message;
+
+    yield put(isFailure(errorMessage));
+    yield delay(5000);
+    yield put(clearError());
+  }
+}
+
+function* watchDeleteTest() {
+  yield takeEvery(DELETE_TEST, deleteTestSaga);
+}
+
 function* addQuestionSaga(
   action: PayloadAction<{
     title: string;
@@ -183,7 +230,7 @@ function* addQuestionSaga(
 ) {
   try {
     yield put(isLoading());
-    const { title, question_type, answer, idTest } = action.payload;
+    const { title, question_type, idTest, answer } = action.payload;
 
     const response: Response = yield newQuestApi(
       idTest,
@@ -257,24 +304,48 @@ function* watchEditQuestion() {
   yield takeEvery(EDIT_QUESTION, editQuestionSaga);
 }
 
+function* deleteQuestionSaga(action: PayloadAction<number>) {
+  try {
+    const idQuestion = action.payload;
+
+    const response: Response = yield deleteQuestApi(idQuestion);
+
+    if (!response.ok) {
+      const errorResponse: { error: string } = yield response.json();
+      throw new Error(
+        errorResponse.error || 'Ошибка запроса при удалении вопроса'
+      );
+    }
+
+    yield put(deleteQuestionSuccess(idQuestion));
+  } catch (error: any) {
+    console.error('Ошибка при удалении вопроса:', error);
+
+    let errorMessage = 'Ошибка при удалении вопроса. Попробуйте еще раз';
+    errorMessage = error.message;
+
+    yield put(isFailure(errorMessage));
+    yield delay(5000);
+    yield put(clearError());
+  }
+}
+
+function* watchDeleteQuestion() {
+  yield takeEvery(DELETE_QUESTION, deleteQuestionSaga);
+}
+
 function* addAnswerSaga(
   action: PayloadAction<{
     text: string;
     is_right: boolean;
     idQuestion: number;
-    idTest: number;
   }>
 ) {
   try {
     yield put(isLoading());
-    const { text, is_right, idQuestion, idTest } = action.payload;
+    const { text, is_right, idQuestion } = action.payload;
 
-    const response: Response = yield newAnswerApi(
-      idQuestion,
-      idTest,
-      text,
-      is_right
-    );
+    const response: Response = yield newAnswerApi(idQuestion, text, is_right);
 
     if (!response.ok) {
       const errorResponse: { error: string } = yield response.json();
@@ -285,7 +356,15 @@ function* addAnswerSaga(
 
     // console.log(payload);
 
-    yield put(addAnswerSuccess(payload));
+    yield put(
+      addAnswerSuccess({
+        idQuestion,
+        id: payload.id,
+        text: payload.text,
+        is_right: payload.is_right,
+        position: 0,
+      })
+    );
   } catch (error: any) {
     console.error('Ошибка при добавлении ответа:', error);
 
@@ -306,14 +385,123 @@ function* watchAddAnswer() {
   yield takeEvery(NEW_ANSWER, addAnswerSaga);
 }
 
+function* editAnswerSaga(action: PayloadAction<AnswerState>) {
+  try {
+    const answer = action.payload;
+    const id = answer.id;
+
+    const response: Response = yield editAnswerApi(id, answer);
+
+    if (!response.ok) {
+      const errorResponse: { error: string } = yield response.json();
+      throw new Error(
+        errorResponse.error || 'Ошибка запроса при редактировании ответа'
+      );
+    }
+
+    const editAnswer: AnswerState = yield response.json();
+    yield put(editAnswerSuccess(editAnswer));
+  } catch (error: any) {
+    console.error('Ошибка при редактировании ответа:', error);
+
+    let errorMessage = 'Ошибка при редактировании теста. Попробуйте еще раз';
+    errorMessage = error.message;
+
+    yield put(isFailure(errorMessage));
+    yield delay(5000);
+    yield put(clearError());
+  }
+}
+
+function* watchEditAnswer() {
+  yield takeEvery(EDIT_ANSWER, editAnswerSaga);
+}
+
+function* handleUpdateAnswerOrder(
+  action: PayloadAction<{ id: number; position: number }>
+) {
+  try {
+    // Делаем запрос на сервер, используя fetch или вашу библиотеку для HTTP-запросов (например, axios)
+    const { id, position } = action.payload;
+
+    const response: Response = yield reorderAnswerApi(id, position);
+
+    if (!response.ok) {
+      const errorResponse: { error: string } = yield response.json();
+      throw new Error(
+        errorResponse.error ||
+          'Ошибка запроса при редактировании позиции ответа'
+      );
+    }
+
+     
+ 
+    yield put(reorderedAnswerSuccess({id, position}));
+
+    // Если запрос успешен, можем отправить экшен для обновления состояния в Redux
+    // yield put(updateAnswers()); // Используйте экшен, который обновляет ответы после изменения
+  } catch (error: any) {
+    console.error('Ошибка при редактировании позиции ответа:', error);
+
+    let errorMessage =
+      'Ошибка при редактировании позиции теста. Попробуйте еще раз';
+    errorMessage = error.message;
+
+    yield put(isFailure(errorMessage));
+    yield delay(5000);
+    yield put(clearError());
+  }
+}
+
+function* watchReorderAnswer() {
+  yield takeEvery(REORDER_ANSWER, handleUpdateAnswerOrder);
+}
+
+function* deleteAnswerSaga(
+  action: PayloadAction<{ idQuestion: number; idAnswer: number }>
+) {
+  try {
+    const { idQuestion, idAnswer } = action.payload;
+
+    const response: Response = yield deleteAnswerApi(idAnswer);
+
+    if (!response.ok) {
+      const errorResponse: { error: string } = yield response.json();
+      throw new Error(
+        errorResponse.error || 'Ошибка запроса при удалении ответа'
+      );
+    }
+
+    yield put(deleteAnswerSuccess({ idQuestion, idAnswer }));
+  } catch (error: any) {
+    console.error('Ошибка при удалении ответа:', error);
+
+    let errorMessage = 'Ошибка при удалении вопроса. Попробуйте еще раз';
+    errorMessage = error.message;
+
+    yield put(isFailure(errorMessage));
+    yield delay(5000);
+    yield put(clearError());
+  }
+}
+
+function* watchDeleteAnswer() {
+  yield takeEvery(DELETE_ANSWER, deleteAnswerSaga);
+}
+
 export default function* usersSaga() {
   yield all([
     watchNewTest(),
     watchGetTests(),
     watchGetTest(),
     watchEditTest(),
+    watchDeleteTest(),
     watchAddQuestion(),
-    watchAddAnswer(),
     watchEditQuestion(),
+    watchDeleteQuestion(),
+    watchAddAnswer(),
+    watchEditAnswer(),
+    watchReorderAnswer(),
+    watchDeleteAnswer(),
   ]);
 }
