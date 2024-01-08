@@ -27,6 +27,7 @@ const FormEditTitle: React.FC<TestState> = ({
   return (
     <Formik
       initialValues={initialValues}
+      validationSchema={addTestValid}
       onSubmit={(
         values: TestState,
         { setSubmitting }: FormikHelpers<TestState>
@@ -39,7 +40,6 @@ const FormEditTitle: React.FC<TestState> = ({
       {({ errors, touched }) => (
         <Form className={classNames(styles.FormEditTitleTest)}>
           <label className={classNames(styles.LabelEdit)}>
-            {' '}
             Изменить название теста
             <Field
               type="text"

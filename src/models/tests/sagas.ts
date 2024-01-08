@@ -94,8 +94,6 @@ function* getTestsSaga() {
 
     const payload: TestsState = yield response.json();
 
-    // console.log(payload, isTest);
-
     yield put(getTestsSuccess({ tests: payload.tests, meta: payload.meta }));
 
     isTest === null &&
@@ -271,23 +269,27 @@ function* watchAddQuestion() {
   yield takeEvery(NEW_QUESTION, addQuestionSaga);
 }
 
-function* editQuestionSaga(action: PayloadAction<QuestState>) {
+function* editQuestionSaga(action: PayloadAction<Partial<QuestState>>) {
   try {
+    // yield put(isLoading());
     const question = action.payload;
     const id = question.id;
 
-    const response: Response = yield editQuestApi(id, question);
-    // console.log({ id, question });
+    if (id) {
+      const response: Response = yield editQuestApi(id, question);
 
-    if (!response.ok) {
-      const errorResponse: { error: string } = yield response.json();
-      throw new Error(
-        errorResponse.error || 'Ошибка запроса при редактировании теста'
-      );
+      // console.log({ id, question });
+
+      if (!response.ok) {
+        const errorResponse: { error: string } = yield response.json();
+        throw new Error(
+          errorResponse.error || 'Ошибка запроса при редактировании теста'
+        );
+      }
+
+      const editQuestion: QuestState = yield response.json();
+      yield put(editQuestionSuccess(editQuestion));
     }
-
-    const editQuestion: QuestState = yield response.json();
-    yield put(editQuestionSuccess(editQuestion));
   } catch (error: any) {
     console.error('Ошибка при редактировании теста:', error);
 
@@ -362,7 +364,7 @@ function* addAnswerSaga(
         id: payload.id,
         text: payload.text,
         is_right: payload.is_right,
-        position: 0,
+        position: 1,
       })
     );
   } catch (error: any) {
@@ -421,8 +423,9 @@ function* handleUpdateAnswerOrder(
   action: PayloadAction<{ id: number; position: number }>
 ) {
   try {
-    // Делаем запрос на сервер, используя fetch или вашу библиотеку для HTTP-запросов (например, axios)
     const { id, position } = action.payload;
+
+    yield put(reorderedAnswerSuccess({ id, position }));
 
     const response: Response = yield reorderAnswerApi(id, position);
 
@@ -433,13 +436,6 @@ function* handleUpdateAnswerOrder(
           'Ошибка запроса при редактировании позиции ответа'
       );
     }
-
-     
- 
-    yield put(reorderedAnswerSuccess({id, position}));
-
-    // Если запрос успешен, можем отправить экшен для обновления состояния в Redux
-    // yield put(updateAnswers()); // Используйте экшен, который обновляет ответы после изменения
   } catch (error: any) {
     console.error('Ошибка при редактировании позиции ответа:', error);
 

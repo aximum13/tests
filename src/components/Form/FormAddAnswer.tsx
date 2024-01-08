@@ -2,18 +2,20 @@ import classNames from 'classnames';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
-import { addTestValid } from 'utils/validation';
+import { addAnswerValid } from 'utils/validation';
 
 import { Button } from 'antd';
 import { createAnswer, editQuestion } from 'models/tests';
 
 import styles from './Form.module.sass';
+import Checkbox from 'antd/es/checkbox/Checkbox';
 
 interface Props {
   idQuestion: number;
   titleQuestion: string;
   question_type: string;
   answer: number;
+  setShowFormAddAnswer: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const FormAddAnswer: React.FC<Props> = ({
@@ -21,18 +23,21 @@ const FormAddAnswer: React.FC<Props> = ({
   titleQuestion,
   question_type,
   answer,
+  setShowFormAddAnswer,
 }) => {
   const initialValues = {
     text: '',
     is_right: false,
   };
 
+  console.log(addAnswerValid);
+
   const dispatch = useAppDispatch();
 
   return (
     <Formik
       initialValues={initialValues}
-      // validationSchema={editTestValid}
+      validationSchema={addAnswerValid(question_type)}
       onSubmit={(
         values: {
           text: string;
@@ -60,21 +65,49 @@ const FormAddAnswer: React.FC<Props> = ({
             answer: answer + 1,
           })
         );
+        setShowFormAddAnswer(false);
         setSubmitting(false);
       }}
     >
       {({ errors, touched }) => (
         <Form className={classNames(styles.FormAddAnswer)}>
-          <label>
-            {`Ответ #${answer + 1}`}
-            <Field
-              type="text"
-              autoComplete="off"
-              name="text"
-              placeholder="Введите ответ"
-            />
-          </label>
-          <Field type="checkbox" name="is_right" />
+          {question_type !== 'number' ? (
+            <>
+              <label className={classNames(styles.LabelAddAnswer)}>
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="text"
+                  placeholder="Введите ответ"
+                  className={styles.InputAddAnswer}
+                />
+                {errors.text && touched.text ? (
+                  <div className={classNames(styles.Error)}>{errors.text}</div>
+                ) : null}
+              </label>
+              <Field
+                className={styles.ButtonAddIsRight}
+                type="checkbox"
+                name="is_right"
+                as={Checkbox}
+              />
+            </>
+          ) : (
+            <>
+              <label className={classNames(styles.LabelAddAnswer)}>
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="text"
+                  placeholder="Введите ответ"
+                  className={styles.InputAddAnswer}
+                />
+                {errors.text && touched.text ? (
+                  <div className={classNames(styles.Error)}>{errors.text}</div>
+                ) : null}
+              </label>
+            </>
+          )}
 
           <Button
             className={classNames(styles.ButtonEdit)}

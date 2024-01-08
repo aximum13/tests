@@ -8,6 +8,8 @@ import { useAppDispatch, useAppSelector } from 'hooks';
 import { deleteAnswer, deleteQuestion, editQuestion } from 'models/tests';
 import { isTest } from 'models/tests/selectors';
 import FormEditAnswer from 'components/Form/FormEditAnswer';
+import { AnswerState } from 'models/tests/types';
+import CloseOutlined from '@ant-design/icons/lib/icons/CloseOutlined';
 
 interface Props {
   id: number;
@@ -52,10 +54,17 @@ const AnswerEdit: React.FC<Props> = ({
 
   return (
     <div className={styles.Question}>
-      <Button onClick={() => handleDeleteAnswer(idQuestion, id)}>
-        Удалить
+      <Button
+        type="text"
+        danger
+        shape="circle"
+        icon={<CloseOutlined />}
+        onClick={() => handleDeleteAnswer(idQuestion, id)}
+      >
+        {/* <CloseOutlined /> */}
       </Button>
       <FormEditAnswer
+        question_type={question_type}
         id={id}
         text={text}
         is_right={is_right}

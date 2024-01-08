@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { deleteTest, getTest } from 'models/tests';
-import { allTests, isLoadTests, isTest } from 'models/tests/selectors';
+import { allTests, isLoading, isTest } from 'models/tests/selectors';
 
 import FormEditTitle from 'components/Form/FormEditTitle';
 import FormAddQuestion from 'components/Form/FormAddQuestion';
@@ -17,25 +17,20 @@ import styles from './EditTestPage.module.sass';
 import QuestionEdit from 'components/QuestionEdit';
 
 const EditTestPage = () => {
-  const [editTitle, setEditTitle] = useState('');
   const [questionType, setQuestionType] = useState('');
-
-  const handleEditTitle = (editFormTitle: { title: string }) => {
-    setEditTitle(editFormTitle.title);
-  };
+  const [questionTypeError, setQuestionTypeError] = useState('');
 
   const [testLoaded, setTestLoaded] = useState(false);
 
   const handleChangeTypeAnswer = (value: string) => {
     setQuestionType(value);
+    questionTypeError !== '' && setQuestionTypeError('');
   };
 
   const dispatch = useAppDispatch();
 
   const test = useAppSelector(isTest);
   const tests = useAppSelector(allTests);
-
-  console.log(tests, test);
 
   const { id } = useParams();
 
@@ -51,18 +46,22 @@ const EditTestPage = () => {
     }
   }, [test]);
 
-  const loading = useAppSelector(isLoadTests);
-
   const { title, created_at, questions } = test
     ? test
     : { title: '', created_at: '', questions: [] };
 
-  console.log(test, test?.title, questions);
-
   const [isNewQuestion, setIsNewQuestion] = useState(false);
 
   const handleModalAddQuestion = () => {
-    setIsNewQuestion(!isNewQuestion);
+    if (
+      questionType === 'single' ||
+      questionType === 'multiple' ||
+      questionType === 'number'
+    )
+      setIsNewQuestion(!isNewQuestion);
+    else {
+      setQuestionTypeError('Выберите тип вопроса');
+    }
   };
 
   const handleDeleteTest = () => {
@@ -71,63 +70,71 @@ const EditTestPage = () => {
 
   return (
     <>
-      {loading && <Spin />}
-      <Link className={styles.HomeLink} to={'/'}>
-        Вернуться на главную страницу
-      </Link>
+      {!testLoaded && <Spin />}
       {testLoaded && (
-        <div className={styles.EditPage}>
-          <FormEditTitle
-            id={idTest}
-            questions={questions}
-            title={title}
-            created_at={created_at}
-          />
-          {questions && questions.length > 0 && (
-            <>
-              <h2 className={styles.TitleQuestionList}>Список вопросов</h2>
-              <div className={styles.QuestionsList}>
-                {questions.map(({ id, title, answer, question_type }) => (
-                  <QuestionEdit
-                    id={id}
-                    title={title}
-                    idTest={idTest}
-                    answer={answer}
-                    question_type={question_type}
-                    key={id}
-                  />
-                ))}
+        <>
+          <Link className={styles.HomeLink} to={'/'}>
+            Вернуться на главную страницу
+          </Link>
+          <div className={styles.EditPage}>
+            <FormEditTitle
+              id={idTest}
+              questions={questions}
+              title={title}
+              created_at={created_at}
+            />
+            {questions && questions.length > 0 && (
+              <>
+                <h2 className={styles.TitleQuestionList}>Список вопросов</h2>
+                <div className={styles.QuestionsList}>
+                  {questions.map(({ id, title, answer, question_type }) => (
+                    <QuestionEdit
+                      id={id}
+                      title={title}
+                      idTest={idTest}
+                      answer={answer}
+                      question_type={question_type}
+                      key={id}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+            <div className={styles.AddQuestion}>
+              <div className={styles.BtnTypeQuestion}>
+                <Select
+                  className={styles.BtnTypeQuestion}
+                  placeholder="Тип вопроса"
+                  onChange={handleChangeTypeAnswer}
+                  options={[
+                    {
+                      value: 'single',
+                      label: 'Один из списка',
+                    },
+                    {
+                      value: 'multiple',
+                      label: 'Несколько из списка',
+                    },
+                    {
+                      value: 'number',
+                      label: 'Численный ответ',
+                    },
+                  ]}
+                ></Select>
+                {questionTypeError !== '' && (
+                  <p className={styles.QuestionTypeError}>
+                    {questionTypeError}
+                  </p>
+                )}
               </div>
-            </>
-          )}
-          <div className={styles.AddQuestion}>
-            <Select
-              className={styles.BtnTypeQuestion}
-              placeholder="Тип вопроса"
-              onChange={handleChangeTypeAnswer}
-              options={[
-                {
-                  value: 'single',
-                  label: 'Один из списка',
-                },
-                {
-                  value: 'multiple',
-                  label: 'Несколько из списка',
-                },
-                {
-                  value: 'number',
-                  label: 'Численный ответ',
-                },
-              ]}
-            ></Select>
+              <Button onClick={handleModalAddQuestion}>Добавить вопрос</Button>
+            </div>
 
-            <Button onClick={handleModalAddQuestion}>Добавить вопрос</Button>
+            <div className={styles.TestFooter}>
+              <Button onClick={handleDeleteTest}>Удалить тест</Button>
+            </div>
           </div>
-
-          <div className={styles.TestFooter}>
-            <Button onClick={handleDeleteTest}>Удалить тест</Button>
-          </div>
-        </div>
+        </>
       )}
 
       <ModalCmp
@@ -138,6 +145,7 @@ const EditTestPage = () => {
         }
         isOpen={isNewQuestion}
         handleCancel={handleModalAddQuestion}
+        footer={null}
       />
     </>
   );

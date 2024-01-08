@@ -8,7 +8,7 @@ import styles from './HomePage.module.sass';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { getTests } from 'models/tests';
-import { allTests, isLoadTests } from 'models/tests/selectors';
+import { allTests, isLoading } from 'models/tests/selectors';
 import { useEffect, useState } from 'react';
 import Spin from 'components/Spin';
 
@@ -28,7 +28,7 @@ const HomePage = () => {
     tests.tests.length && setTestsLoaded(true);
   }, [tests]);
 
-  const loading = useAppSelector(isLoadTests);
+  const loading = useAppSelector(isLoading);
 
   const handleLogOut = () => dispatch(logOutUser());
 

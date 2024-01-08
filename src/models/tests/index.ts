@@ -80,7 +80,6 @@ const testsSlice = createSlice({
     // Редактирование вопроса
 
     editQuestionSuccess: (state, action: PayloadAction<QuestState>) => {
-      state.loading = false;
       const { id, title, question_type, answer } = action.payload;
       if (state.test) {
         state.test.questions = state.test.questions.map(
@@ -90,6 +89,7 @@ const testsSlice = createSlice({
               : question
         );
       }
+      state.loading = false;
     },
 
     // Удаление вопроса
@@ -157,16 +157,15 @@ const testsSlice = createSlice({
           const answers = question.answers || [];
           const movedAnswer = answers.find((answer) => answer.id === id);
 
-          if (movedAnswer && position) {
-            // Удаление перемещаемого ответа из списка
+          if (
+            movedAnswer !== undefined &&
+            position !== undefined &&
+            position >= 0
+          ) {
             const filteredAnswers = answers.filter(
               (answer) => answer.id !== id
             );
-
-            // Вставка перемещаемого ответа на новую позицию
             filteredAnswers.splice(position, 0, movedAnswer);
-
-            // Обновление порядка ответов в вопросе
             question.answers = filteredAnswers;
           }
         }
@@ -247,7 +246,7 @@ export const createQuestion = createAction(
 export const EDIT_QUESTION = 'tests/editQuestion';
 export const editQuestion = createAction(
   EDIT_QUESTION,
-  (payload: QuestState) => ({
+  (payload: Partial<QuestState>) => ({
     payload,
   })
 );

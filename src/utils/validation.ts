@@ -1,3 +1,4 @@
+import { AnswerState } from 'models/tests/types';
 import * as Yup from 'yup';
 
 export const signUpValid = Yup.object().shape({
@@ -57,3 +58,83 @@ export const addTestValid = Yup.object().shape({
     .min(3, 'Введите не менее 3 символов')
     .max(100, 'Введите не более 100 символов'),
 });
+
+export const addQuestionValid = Yup.object().shape({
+  title: Yup.string()
+    .transform((value) => (value ? value.trim() : value))
+    .required('Введите назвавние теста')
+    .test('notOnlyWhitespace', 'Введите назвавние теста', (value) => {
+      return /\S/.test(value);
+    })
+    .min(3, 'Введите не менее 3 символов')
+    .max(100, 'Введите не более 100 символов'),
+});
+
+export const editQuestionValid = Yup.object().shape({
+  title: Yup.string()
+    .transform((value) => (value ? value.trim() : value))
+    .required('Введите назвавние теста')
+    .test('notOnlyWhitespace', 'Введите назвавние теста', (value) => {
+      return /\S/.test(value);
+    })
+    .min(3, 'Введите не менее 3 символов')
+    .max(100, 'Введите не более 100 символов'),
+});
+
+export const addAnswerValid = (question_type: string) =>
+  Yup.object().shape({
+    text:
+      question_type !== 'number'
+        ? Yup.string()
+            .transform((value) => (value ? value.trim() : value))
+            .required('Введите ответ')
+            .test('notOnlyWhitespace', 'Введите ответ', (value) =>
+              /\S/.test(value)
+            )
+            .min(3, 'Введите не менее 3 символов')
+            .max(100, 'Введите не более 100 символов')
+        : Yup.string()
+            .required('Введите ответ')
+            .matches(/^[0-9]+$/, 'Введите только цифры'),
+  });
+
+export const editAnswerValid = (question_type: string) =>
+  Yup.object().shape({
+    text:
+      question_type !== 'number'
+        ? Yup.string()
+            .transform((value) => (value ? value.trim() : value))
+            .required('Введите ответ')
+            .test('notOnlyWhitespace', 'Введите ответ', (value) =>
+              /\S/.test(value)
+            )
+            .min(3, 'Введите не менее 3 символов')
+            .max(100, 'Введите не более 100 символов')
+        : Yup.string()
+            .required('Введите ответ')
+            .matches(/^[0-9]+$/, 'Введите только цифры'),
+  });
+
+export const editTestValid = (
+  question_type: string,
+  answer: number,
+  countIsRight: number,
+  setErrorText: React.Dispatch<React.SetStateAction<string>>
+) => {
+  if (question_type !== 'number' && answer < 2) {
+    setErrorText('Ответов должно быть не менее 2');
+    return false;
+  }
+  if (question_type === 'single') {
+    if (countIsRight !== 1) {
+      setErrorText('Выберите один верный ответ');
+      return false;
+    }
+  } else if (question_type === 'multiple') {
+    if (countIsRight < 1) {
+      setErrorText('Выберите верные ответы');
+      return false;
+    }
+  }
+  return true;
+};

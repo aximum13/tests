@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
-import { addTestValid } from 'utils/validation';
+import { addQuestionValid, addTestValid } from 'utils/validation';
 
 import { Button } from 'antd';
 import { createQuestion } from 'models/tests';
@@ -34,7 +34,7 @@ const FormAddQuestion: React.FC<Props> = ({ question_type, idTest }) => {
   return (
     <Formik
       initialValues={initialValues}
-      // validationSchema={editTestValid}
+      validationSchema={addQuestionValid}
       onSubmit={(
         values: QuestionState,
         { setSubmitting }: FormikHelpers<QuestionState>
@@ -98,7 +98,7 @@ const FormAddQuestion: React.FC<Props> = ({ question_type, idTest }) => {
                 {' '}
                 <label className={classNames(styles.LabelEdit)}>
                   <Field
-                    type="number"
+                    type="text"
                     autoComplete="off"
                     className={classNames(styles.FieldEdit, styles.Field)}
                     name="title"
