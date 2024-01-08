@@ -24,6 +24,7 @@ const testsSlice = createSlice({
 
     getTestsSuccess: (state, action) => {
       state.loading = false;
+      // state.test = null;
       state.testsData.tests = action.payload.tests;
       state.testsData.meta = action.payload.meta;
     },
@@ -32,13 +33,13 @@ const testsSlice = createSlice({
 
     getTestStart: (state) => {
       state.loading = true;
-      // state.test = null;
+      state.test = null;
       state.error = null;
     },
 
     // Получение теста по id
 
-    getTestSuccess: (state, action) => {
+    getTestSuccess: (state, action: PayloadAction<TestState>) => {
       state.loading = false;
       state.test = action.payload;
     },

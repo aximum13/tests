@@ -1,7 +1,7 @@
 import { Button, Spin } from 'antd';
 import styles from './QuestionEdit.module.sass';
 import classNames from 'classnames';
-import FormEditQuestions from 'components/Form/FormEditQuestion';
+import FormEditQuestions from 'components/Form/FormEditQuestions';
 import ModalCmp from 'components/Modal/Modal';
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'hooks';
@@ -11,6 +11,8 @@ import { isLoading as loaded } from 'models/tests';
 import { AnswerState, QuestState } from 'models/tests/types';
 import FormEditQuestion from 'components/Form/FormEditQuestion';
 import { editTestValid } from 'utils/validation';
+import CloseOutlined from '@ant-design/icons/lib/icons/CloseOutlined';
+import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
 
 interface Props {
   id: number;
@@ -31,7 +33,7 @@ const QuestionEdit: React.FC<Props> = ({
 
   const [editQuestionTitle, setEditQuestionTitle] = useState(title);
   const [isLoad, setIsLoad] = useState(false);
-  const [isEditQuestion, setIsEditQuestion] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [errorText, setErrorText] = useState('');
 
@@ -50,8 +52,8 @@ const QuestionEdit: React.FC<Props> = ({
 
   console.log(countIsRight);
 
-  const handleModalEditQuestion = () => {
-    setIsEditQuestion(!isEditQuestion);
+  const handleModalIsOpen = () => {
+    setIsModalOpen(!isModalOpen);
   };
 
   const handleDeleteQuestion = (id: number) => {
@@ -64,7 +66,7 @@ const QuestionEdit: React.FC<Props> = ({
     ) {
       setErrorText('');
       if (title === testTitle) {
-        setIsEditQuestion(false);
+        setIsModalOpen(false);
       } else {
         setIsLoad(true);
         dispatch(editQuestion({ answer, id, title, question_type }));
@@ -74,20 +76,29 @@ const QuestionEdit: React.FC<Props> = ({
 
   useEffect(() => {
     if (isQuestion?.title) setIsLoad(false);
-    setIsEditQuestion(false);
+    setIsModalOpen(false);
   }, [isQuestion?.title]);
 
   return (
     <>
-      <div className={styles.Question}>
-        <Button onClick={handleModalEditQuestion}>Редактировать</Button>
+      <div key={id} className={styles.Question}>
+        <Button
+          size={'large'}
+          type="text"
+          shape="circle"
+          icon={<EditOutlined />}
+          onClick={handleModalIsOpen}
+        ></Button>
         <div>{title}</div>
         <Button
+          size={'large'}
+          type="text"
+          danger
+          shape="circle"
+          icon={<CloseOutlined />}
           className={styles.ButtonDelete}
           onClick={() => handleDeleteQuestion(id)}
-        >
-          Удалить
-        </Button>
+        ></Button>
         <ModalCmp
           width={700}
           title={'Редактировать вопрос'}
@@ -101,16 +112,22 @@ const QuestionEdit: React.FC<Props> = ({
               setEditQuestionTitle={setEditQuestionTitle}
             />
           }
-          isOpen={isEditQuestion}
-          handleCancel={handleModalEditQuestion}
+          isOpen={isModalOpen}
+          handleCancel={handleModalIsOpen}
           footer={[
-            <div className={styles.EditQuestionFooter}>
+            <div key={id} className={styles.EditQuestionFooter}>
               {errorText && <p className={styles.ErrorText}>{errorText}</p>}
               <div>
-                <Button key="back" onClick={handleModalEditQuestion}>
-                  Отмена
-                </Button>
-                <Button
+                <Button onClick={handleModalIsOpen}>Отмена</Button>
+                <FormEditQuestions
+                  countIsRight={countIsRight}
+                  setErrorText={setErrorText}
+                  id={id}
+                  title={title}
+                  question_type={question_type}
+                  answer={answerCount}
+                />
+                {/* <Button
                   key="submit"
                   type="primary"
                   onClick={() =>
@@ -118,7 +135,7 @@ const QuestionEdit: React.FC<Props> = ({
                   }
                 >
                   {isLoad ? 'Отправка...' : 'Изменить'}
-                </Button>
+                </Button> */}
               </div>
             </div>,
           ]}

@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
-import { addTestValid, editAnswerValid } from 'utils/validation';
+import { answerValid } from 'utils/validation';
 
 import { Button } from 'antd';
 import { editAnswer } from 'models/tests';
@@ -45,7 +45,7 @@ const FormEditAnswer: React.FC<Values & Props> = ({
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={editAnswerValid(question_type)}
+      validationSchema={answerValid(question_type)}
       onSubmit={(values: Values, { setSubmitting }: FormikHelpers<Values>) => {
         const answer: AnswerState = values;
         dispatch(editAnswer(answer));

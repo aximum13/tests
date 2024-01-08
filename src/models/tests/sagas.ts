@@ -30,6 +30,7 @@ import {
   clearError,
   REORDER_ANSWER,
   reorderedAnswerSuccess,
+  getTestStart,
 } from '.';
 import {
   newTestApi,
@@ -52,8 +53,6 @@ function* newTestSaga(action: PayloadAction<string>) {
   try {
     const title = action.payload;
     const response: Response = yield newTestApi(title);
-
-    // console.log(response);
 
     if (!response.ok) {
       const errorResponse: { error: string } = yield response.json();
@@ -123,13 +122,11 @@ function* watchGetTests() {
 
 function* getTestSaga(action: PayloadAction<number>) {
   try {
-    // yield put(getTestStart());
-    yield put(isLoading());
+    yield put(getTestStart());
 
     const id = action.payload;
     const response: Response = yield getTestApi(id);
 
-    // console.log(response);
     if (!response.ok) {
       throw new Error(`Ошибка при открытии теста, статус: ${response.status}`);
     }
@@ -237,16 +234,12 @@ function* addQuestionSaga(
       answer
     );
 
-    // console.log(response);
-
     if (!response.ok) {
       const errorResponse: { error: string } = yield response.json();
       throw new Error(errorResponse.error || 'Ошибка при добавлении вопроса');
     }
 
     const payload: QuestState = yield response.json();
-
-    // console.log(payload);
 
     yield put(addQuestionSuccess(payload));
   } catch (error: any) {
@@ -277,8 +270,6 @@ function* editQuestionSaga(action: PayloadAction<Partial<QuestState>>) {
 
     if (id) {
       const response: Response = yield editQuestApi(id, question);
-
-      // console.log({ id, question });
 
       if (!response.ok) {
         const errorResponse: { error: string } = yield response.json();
@@ -355,8 +346,6 @@ function* addAnswerSaga(
     }
 
     const payload: AnswerState = yield response.json();
-
-    // console.log(payload);
 
     yield put(
       addAnswerSuccess({

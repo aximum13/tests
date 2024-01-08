@@ -1,4 +1,3 @@
-import { AnswerState } from 'models/tests/types';
 import * as Yup from 'yup';
 
 export const signUpValid = Yup.object().shape({
@@ -48,7 +47,7 @@ export const signInValid = Yup.object().shape({
     .max(50, 'Введите не более 50 символов'),
 });
 
-export const addTestValid = Yup.object().shape({
+export const testTitleValid = Yup.object().shape({
   title: Yup.string()
     .transform((value) => (value ? value.trim() : value))
     .required('Введите назвавние теста')
@@ -59,46 +58,18 @@ export const addTestValid = Yup.object().shape({
     .max(100, 'Введите не более 100 символов'),
 });
 
-export const addQuestionValid = Yup.object().shape({
+export const questionTitleValid = Yup.object().shape({
   title: Yup.string()
     .transform((value) => (value ? value.trim() : value))
-    .required('Введите назвавние теста')
-    .test('notOnlyWhitespace', 'Введите назвавние теста', (value) => {
+    .required('Введите назвавние вопроса')
+    .test('notOnlyWhitespace', 'Введите назвавние вопроса', (value) => {
       return /\S/.test(value);
     })
     .min(3, 'Введите не менее 3 символов')
     .max(100, 'Введите не более 100 символов'),
 });
 
-export const editQuestionValid = Yup.object().shape({
-  title: Yup.string()
-    .transform((value) => (value ? value.trim() : value))
-    .required('Введите назвавние теста')
-    .test('notOnlyWhitespace', 'Введите назвавние теста', (value) => {
-      return /\S/.test(value);
-    })
-    .min(3, 'Введите не менее 3 символов')
-    .max(100, 'Введите не более 100 символов'),
-});
-
-export const addAnswerValid = (question_type: string) =>
-  Yup.object().shape({
-    text:
-      question_type !== 'number'
-        ? Yup.string()
-            .transform((value) => (value ? value.trim() : value))
-            .required('Введите ответ')
-            .test('notOnlyWhitespace', 'Введите ответ', (value) =>
-              /\S/.test(value)
-            )
-            .min(3, 'Введите не менее 3 символов')
-            .max(100, 'Введите не более 100 символов')
-        : Yup.string()
-            .required('Введите ответ')
-            .matches(/^[0-9]+$/, 'Введите только цифры'),
-  });
-
-export const editAnswerValid = (question_type: string) =>
+export const answerValid = (question_type: string) =>
   Yup.object().shape({
     text:
       question_type !== 'number'

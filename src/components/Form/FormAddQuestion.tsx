@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
-import { addQuestionValid, addTestValid } from 'utils/validation';
+import { questionTitleValid, testTitleValid } from 'utils/validation';
 
 import { Button } from 'antd';
 import { createQuestion } from 'models/tests';
@@ -19,9 +19,14 @@ interface QuestionState {
 interface Props {
   question_type: string;
   idTest: number;
+  setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const FormAddQuestion: React.FC<Props> = ({ question_type, idTest }) => {
+const FormAddQuestion: React.FC<Props> = ({
+  question_type,
+  idTest,
+  setIsOpenModal,
+}) => {
   const initialValues: QuestionState = {
     title: '',
     question_type,
@@ -34,7 +39,7 @@ const FormAddQuestion: React.FC<Props> = ({ question_type, idTest }) => {
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={addQuestionValid}
+      validationSchema={questionTitleValid}
       onSubmit={(
         values: QuestionState,
         { setSubmitting }: FormikHelpers<QuestionState>
@@ -48,6 +53,7 @@ const FormAddQuestion: React.FC<Props> = ({ question_type, idTest }) => {
             idTest,
           })
         );
+        setIsOpenModal(false);
         setSubmitting(false);
       }}
     >

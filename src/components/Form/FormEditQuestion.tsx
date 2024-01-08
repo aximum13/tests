@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { isTest } from 'models/tests/selectors';
-import { editQuestionValid } from 'utils/validation';
+import { questionTitleValid } from 'utils/validation';
 import { editQuestion, reorderAnswer } from 'models/tests';
 import { AnswerState, QuestState } from 'models/tests/types';
 
@@ -33,7 +33,7 @@ interface Props {
   id: number;
 }
 
-const FormEditQuestions: React.FC<Values & Props> = ({
+const FormEditQuestion: React.FC<Values & Props> = ({
   id,
   idTest,
   question_type,
@@ -59,8 +59,6 @@ const FormEditQuestions: React.FC<Values & Props> = ({
 
   const dispatch = useAppDispatch();
 
-  
-
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
@@ -76,7 +74,7 @@ const FormEditQuestions: React.FC<Values & Props> = ({
     <>
       <Formik
         initialValues={initialValues}
-        validationSchema={editQuestionValid}
+        validationSchema={questionTitleValid}
         onSubmit={(
           values: Values,
           { setSubmitting }: FormikHelpers<Values>
@@ -250,4 +248,4 @@ const FormEditQuestions: React.FC<Values & Props> = ({
   );
 };
 
-export default FormEditQuestions;
+export default FormEditQuestion;

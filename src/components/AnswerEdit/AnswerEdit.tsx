@@ -42,14 +42,6 @@ const AnswerEdit: React.FC<Props> = ({
         idAnswer: id,
       })
     );
-    dispatch(
-      editQuestion({
-        id: idQuestion,
-        title: titleQuestion,
-        question_type,
-        answer: answer - 1,
-      })
-    );
   };
 
   return (

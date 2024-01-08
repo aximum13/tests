@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
-import { addTestValid } from 'utils/validation';
+import { testTitleValid } from 'utils/validation';
 
 import { Button } from 'antd';
 import { createTest, editTest } from 'models/tests';
@@ -27,7 +27,7 @@ const FormEditTitle: React.FC<TestState> = ({
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={addTestValid}
+      validationSchema={testTitleValid}
       onSubmit={(
         values: TestState,
         { setSubmitting }: FormikHelpers<TestState>

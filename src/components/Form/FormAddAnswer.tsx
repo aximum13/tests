@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
-import { addAnswerValid } from 'utils/validation';
+import { answerValid } from 'utils/validation';
 
 import { Button } from 'antd';
 import { createAnswer, editQuestion } from 'models/tests';
@@ -30,14 +30,14 @@ const FormAddAnswer: React.FC<Props> = ({
     is_right: false,
   };
 
-  console.log(addAnswerValid);
+  console.log(answerValid);
 
   const dispatch = useAppDispatch();
 
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={addAnswerValid(question_type)}
+      validationSchema={answerValid(question_type)}
       onSubmit={(
         values: {
           text: string;
@@ -57,14 +57,7 @@ const FormAddAnswer: React.FC<Props> = ({
             idQuestion,
           })
         );
-        dispatch(
-          editQuestion({
-            id: idQuestion,
-            title: titleQuestion,
-            question_type,
-            answer: answer + 1,
-          })
-        );
+
         setShowFormAddAnswer(false);
         setSubmitting(false);
       }}

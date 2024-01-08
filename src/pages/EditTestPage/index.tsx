@@ -2,8 +2,8 @@ import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
-import { deleteTest, getTest } from 'models/tests';
-import { allTests, isLoading, isTest } from 'models/tests/selectors';
+import { deleteTest, getTest, isLoading } from 'models/tests';
+import { allTests, isLoading as isLoad, isTest } from 'models/tests/selectors';
 
 import FormEditTitle from 'components/Form/FormEditTitle';
 import FormAddQuestion from 'components/Form/FormAddQuestion';
@@ -20,7 +20,9 @@ const EditTestPage = () => {
   const [questionType, setQuestionType] = useState('');
   const [questionTypeError, setQuestionTypeError] = useState('');
 
-  const [testLoaded, setTestLoaded] = useState(false);
+  const loading = useAppSelector(isLoad);
+
+  const [testLoaded, setTestLoaded] = useState(loading);
 
   const handleChangeTypeAnswer = (value: string) => {
     setQuestionType(value);
@@ -37,20 +39,19 @@ const EditTestPage = () => {
   const idTest = id ? parseInt(id) : 0;
 
   useEffect(() => {
-    if (test?.id !== idTest) dispatch(getTest(idTest));
-  }, [dispatch, idTest, test]);
-
-  useEffect(() => {
-    if (test) {
-      setTestLoaded(true);
+    // Проверяем, что idTest не равен 0, чтобы избежать запроса при нулевом значении
+    if (idTest !== 0) {
+      dispatch(getTest(idTest));
     }
-  }, [test]);
+  }, [dispatch, idTest]);
 
   const { title, created_at, questions } = test
     ? test
     : { title: '', created_at: '', questions: [] };
 
-  const [isNewQuestion, setIsNewQuestion] = useState(false);
+  console.log(title, created_at, questions, test);
+
+  const [isOpenModal, setIsOpenModal] = useState(false);
 
   const handleModalAddQuestion = () => {
     if (
@@ -58,9 +59,12 @@ const EditTestPage = () => {
       questionType === 'multiple' ||
       questionType === 'number'
     )
-      setIsNewQuestion(!isNewQuestion);
+      setIsOpenModal(!isOpenModal);
     else {
       setQuestionTypeError('Выберите тип вопроса');
+      setTimeout(() => {
+        setQuestionTypeError('');
+      }, 3000);
     }
   };
 
@@ -70,8 +74,8 @@ const EditTestPage = () => {
 
   return (
     <>
-      {!testLoaded && <Spin />}
-      {testLoaded && (
+      {!test && <Spin />}
+      {test && (
         <>
           <Link className={styles.HomeLink} to={'/'}>
             Вернуться на главную страницу
@@ -131,22 +135,27 @@ const EditTestPage = () => {
             </div>
 
             <div className={styles.TestFooter}>
-              <Button onClick={handleDeleteTest}>Удалить тест</Button>
+              <Button danger onClick={handleDeleteTest}>
+                Удалить тест
+              </Button>
             </div>
           </div>
+          <ModalCmp
+            width={600}
+            title={'Добавить вопрос'}
+            content={
+              <FormAddQuestion
+                question_type={questionType}
+                idTest={idTest}
+                setIsOpenModal={setIsOpenModal}
+              />
+            }
+            isOpen={isOpenModal}
+            handleCancel={handleModalAddQuestion}
+            footer={null}
+          />
         </>
       )}
-
-      <ModalCmp
-        width={600}
-        title={'Добавить вопрос'}
-        content={
-          <FormAddQuestion question_type={questionType} idTest={idTest} />
-        }
-        isOpen={isNewQuestion}
-        handleCancel={handleModalAddQuestion}
-        footer={null}
-      />
     </>
   );
 };

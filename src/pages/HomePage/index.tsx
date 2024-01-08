@@ -11,9 +11,13 @@ import { getTests } from 'models/tests';
 import { allTests, isLoading } from 'models/tests/selectors';
 import { useEffect, useState } from 'react';
 import Spin from 'components/Spin';
+import { TestState } from 'models/tests/types';
 
 const HomePage = () => {
-  const [testsLoaded, setTestsLoaded] = useState(false);
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredTests, setFilteredTests] = useState<TestState[]>([]);
 
   const user = useAppSelector(isUser);
   const tests = useAppSelector(allTests);
@@ -24,13 +28,32 @@ const HomePage = () => {
     !tests.tests.length && dispatch(getTests());
   }, [dispatch, tests]);
 
-  useEffect(() => {
-    tests.tests.length && setTestsLoaded(true);
-  }, [tests]);
-
   const loading = useAppSelector(isLoading);
 
   const handleLogOut = () => dispatch(logOutUser());
+
+  const sortedTests = filteredTests.slice().sort((a, b) => {
+    const dateA = new Date(a.created_at).getTime();
+    const dateB = new Date(b.created_at).getTime();
+
+    if (sortDirection === 'asc') {
+      return dateA - dateB;
+    } else {
+      return dateB - dateA;
+    }
+  });
+
+  const toggleSortDirection = () => {
+    const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    setSortDirection(newDirection);
+  };
+
+  useEffect(() => {
+    const filtered = tests.tests.filter((test) =>
+      test.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredTests(filtered);
+  }, [searchTerm, tests.tests]);
 
   return (
     <>
@@ -41,15 +64,24 @@ const HomePage = () => {
 
       <div className={classNames(styles.TableHead)}>
         {user?.is_admin && <Link to="/new-test">Добавить тест</Link>}
-        <input type="text" placeholder="Название теста" />
+        <button onClick={toggleSortDirection}>
+          Сортировать по дате ({sortDirection === 'asc' ? 'возр' : 'убыв'})
+        </button>
+        <input
+          type="text"
+          placeholder="Название теста"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {loading && <Spin />}
       <ul className={classNames(styles.TableTest)}>
-        {testsLoaded &&
-          tests.tests.map((test) => (
+        {!loading &&
+          sortedTests.map((test) => (
             <li key={test.id} className={classNames(styles.TestItem)}>
               <p className={classNames(styles.s)}>{test.title}</p>
+              <p className={classNames(styles.s)}>{test.created_at}</p>
               {user?.is_admin && (
                 <Link className={styles.TextDetail} to={`edit/${test.id}`}>
                   Редактировать тест
