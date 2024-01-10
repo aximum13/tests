@@ -224,7 +224,7 @@ function* addQuestionSaga(
   }>
 ) {
   try {
-    yield put(isLoading());
+    // yield put(isLoading());
     const { title, question_type, idTest, answer } = action.payload;
 
     const response: Response = yield newQuestApi(
@@ -335,7 +335,7 @@ function* addAnswerSaga(
   }>
 ) {
   try {
-    yield put(isLoading());
+    // yield put(isLoading());
     const { text, is_right, idQuestion } = action.payload;
 
     const response: Response = yield newAnswerApi(idQuestion, text, is_right);

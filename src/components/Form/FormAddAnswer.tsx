@@ -30,8 +30,6 @@ const FormAddAnswer: React.FC<Props> = ({
     is_right: false,
   };
 
-  console.log(answerValid);
-
   const dispatch = useAppDispatch();
 
   return (

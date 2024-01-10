@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
-import { answerValid } from 'utils/validation';
+import { answerValid, editQuestionValid } from 'utils/validation';
 
 import { Button } from 'antd';
 import { editAnswer } from 'models/tests';
@@ -20,8 +20,10 @@ interface Values {
 }
 
 interface Props {
-  answer?: number;
+  answer: number;
   question_type: string;
+  setErrorText: React.Dispatch<React.SetStateAction<string>>;
+  countIsRight: number;
 }
 
 const FormEditAnswer: React.FC<Values & Props> = ({
@@ -31,8 +33,9 @@ const FormEditAnswer: React.FC<Values & Props> = ({
   answer,
   position,
   question_type,
+  setErrorText,
+  countIsRight,
 }) => {
-  const [answers, setAnswers] = useState(answer);
   const initialValues: Values = {
     id,
     text,
@@ -47,10 +50,10 @@ const FormEditAnswer: React.FC<Values & Props> = ({
       initialValues={initialValues}
       validationSchema={answerValid(question_type)}
       onSubmit={(values: Values, { setSubmitting }: FormikHelpers<Values>) => {
-        const answer: AnswerState = values;
-        dispatch(editAnswer(answer));
-
+        const answerEdit: AnswerState = values;
+        dispatch(editAnswer(answerEdit));
         setSubmitting(false);
+        // editQuestionValid(question_type, answer, countIsRight, setErrorText);
       }}
     >
       {({ errors, touched }) => (
@@ -92,23 +95,6 @@ const FormEditAnswer: React.FC<Values & Props> = ({
               </label>
             </>
           )}
-
-          {/* <label className={classNames(styles.EditAnswerText)}>
-              {`Ответ #${answers ? answers + 1 : 1}`}
-              <Field
-              className={classNames(styles.EditAnswerText)}
-              type="text"
-              autoComplete="off"
-              name="text"
-              placeholder="Введите ответ"
-            />
-          </label>
-          <Field
-            className={classNames(styles.ButtonEditIsRight)}
-            type="checkbox"
-            name="is_right"
-            as={Checkbox}
-          /> */}
 
           <Button
             className={classNames(styles.ButtonEdit)}

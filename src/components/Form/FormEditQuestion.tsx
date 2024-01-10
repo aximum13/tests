@@ -1,9 +1,9 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { isTest } from 'models/tests/selectors';
-import { questionTitleValid } from 'utils/validation';
+import { editQuestionValid, questionTitleValid } from 'utils/validation';
 import { editQuestion, reorderAnswer } from 'models/tests';
 import { AnswerState, QuestState } from 'models/tests/types';
 
@@ -22,26 +22,33 @@ import {
 } from 'react-beautiful-dnd';
 
 interface Values {
+  id: number;
+
   title: string;
 }
 
 interface Props {
   idTest: number;
-  setEditQuestionTitle: React.Dispatch<React.SetStateAction<string>>;
+  id: number;
   question_type: string;
   answer: number;
-  id: number;
+  countIsRight: number;
+  errorText: string;
+  setErrorText: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const FormEditQuestion: React.FC<Values & Props> = ({
-  id,
   idTest,
-  question_type,
+  id,
   title,
+  question_type,
   answer,
-  setEditQuestionTitle,
+  countIsRight,
+  setErrorText,
+  errorText,
 }) => {
   const initialValues: Values = {
+    id,
     title,
   };
 
@@ -59,6 +66,10 @@ const FormEditQuestion: React.FC<Values & Props> = ({
 
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    editQuestionValid(question_type, answer, countIsRight, setErrorText);
+  }, [question_type, answer, countIsRight, setErrorText]);
+
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
@@ -71,7 +82,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
   };
 
   return (
-    <>
+    <div className={styles.FormEditQuestion}>
       <Formik
         initialValues={initialValues}
         validationSchema={questionTitleValid}
@@ -79,8 +90,9 @@ const FormEditQuestion: React.FC<Values & Props> = ({
           values: Values,
           { setSubmitting }: FormikHelpers<Values>
         ) => {
-          const question: string = values.title;
-          setEditQuestionTitle(question);
+          const { id, title }: Partial<QuestState> = values;
+          dispatch(editQuestion({ id, title, question_type, answer }));
+          // setEditQuestionTitle(question);
           setSubmitting(false);
         }}
       >
@@ -153,6 +165,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
           </Form>
         )}
       </Formik>
+
       {question &&
         question.answers &&
         question?.answers?.length > 0 &&
@@ -184,6 +197,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
                                 {...provided.dragHandleProps}
                               >
                                 <AnswerEdit
+                                  countIsRight={countIsRight}
                                   id={id}
                                   text={text}
                                   is_right={is_right}
@@ -192,6 +206,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
                                   question_type={question_type}
                                   answer={answer}
                                   index={index}
+                                  setErrorText={setErrorText}
                                 />
                               </div>
                             )}
@@ -205,13 +220,13 @@ const FormEditQuestion: React.FC<Values & Props> = ({
             </DragDropContext>
           </>
         )}
-
       {question?.question_type === 'number' && (
         <>
           {question &&
             question.answers &&
             question.answers.map(({ text, is_right, id }, index: number) => (
               <AnswerEdit
+                countIsRight={countIsRight}
                 id={id}
                 text={text}
                 is_right={is_right}
@@ -220,11 +235,11 @@ const FormEditQuestion: React.FC<Values & Props> = ({
                 question_type={question_type}
                 answer={answer}
                 index={index}
+                setErrorText={setErrorText}
               />
             ))}
         </>
       )}
-
       {question?.question_type !== 'number' ||
       (question?.question_type === 'number' &&
         question.answers &&
@@ -244,7 +259,8 @@ const FormEditQuestion: React.FC<Values & Props> = ({
           )}
         </div>
       ) : null}
-    </>
+      {errorText && <p className={styles.ErrorText}>{errorText}</p>}
+    </div>
   );
 };
 

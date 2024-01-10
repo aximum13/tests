@@ -20,10 +20,6 @@ const EditTestPage = () => {
   const [questionType, setQuestionType] = useState('');
   const [questionTypeError, setQuestionTypeError] = useState('');
 
-  const loading = useAppSelector(isLoad);
-
-  const [testLoaded, setTestLoaded] = useState(loading);
-
   const handleChangeTypeAnswer = (value: string) => {
     setQuestionType(value);
     questionTypeError !== '' && setQuestionTypeError('');
@@ -32,14 +28,12 @@ const EditTestPage = () => {
   const dispatch = useAppDispatch();
 
   const test = useAppSelector(isTest);
-  const tests = useAppSelector(allTests);
 
   const { id } = useParams();
 
   const idTest = id ? parseInt(id) : 0;
 
   useEffect(() => {
-    // Проверяем, что idTest не равен 0, чтобы избежать запроса при нулевом значении
     if (idTest !== 0) {
       dispatch(getTest(idTest));
     }
@@ -48,8 +42,6 @@ const EditTestPage = () => {
   const { title, created_at, questions } = test
     ? test
     : { title: '', created_at: '', questions: [] };
-
-  console.log(title, created_at, questions, test);
 
   const [isOpenModal, setIsOpenModal] = useState(false);
 
@@ -71,6 +63,8 @@ const EditTestPage = () => {
   const handleDeleteTest = () => {
     test && dispatch(deleteTest(test.id));
   };
+
+  console.log('EditTestPage');
 
   return (
     <>

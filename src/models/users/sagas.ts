@@ -75,7 +75,6 @@ function* signInSaga(action: PayloadAction<UserState>) {
     );
     yield delay(5000);
     yield put(clearError());
-    // console.log(error);
   }
 }
 
@@ -106,8 +105,6 @@ function* logOutSaga(action: PayloadAction<number>) {
     if (!response.ok) {
       throw new Error();
     }
-
-    // console.log(response);
 
     yield put(logout());
     localStorage.removeItem('user');

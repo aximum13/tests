@@ -12,6 +12,7 @@ import { allTests, isLoading } from 'models/tests/selectors';
 import { useEffect, useState } from 'react';
 import Spin from 'components/Spin';
 import { TestState } from 'models/tests/types';
+import { formatDateTime } from 'utils/formatedFate';
 
 const HomePage = () => {
   const [sortDirection, setSortDirection] = useState('asc');
@@ -81,7 +82,9 @@ const HomePage = () => {
           sortedTests.map((test) => (
             <li key={test.id} className={classNames(styles.TestItem)}>
               <p className={classNames(styles.s)}>{test.title}</p>
-              <p className={classNames(styles.s)}>{test.created_at}</p>
+              <p className={classNames(styles.s)}>
+                {formatDateTime(test.created_at)}
+              </p>
               {user?.is_admin && (
                 <Link className={styles.TextDetail} to={`edit/${test.id}`}>
                   Редактировать тест

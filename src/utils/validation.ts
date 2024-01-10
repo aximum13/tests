@@ -86,7 +86,7 @@ export const answerValid = (question_type: string) =>
             .matches(/^[0-9]+$/, 'Введите только цифры'),
   });
 
-export const editTestValid = (
+export const editQuestionValid = (
   question_type: string,
   answer: number,
   countIsRight: number,
@@ -107,5 +107,6 @@ export const editTestValid = (
       return false;
     }
   }
+  setErrorText('');
   return true;
 };

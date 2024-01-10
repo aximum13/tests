@@ -15,10 +15,12 @@ interface Props {
   id: number;
   text: string;
   is_right: boolean;
+  setErrorText: React.Dispatch<React.SetStateAction<string>>;
 
   answer: number;
   index: number;
   idQuestion: number;
+  countIsRight: number;
   titleQuestion: string;
   question_type: string;
 }
@@ -32,6 +34,8 @@ const AnswerEdit: React.FC<Props> = ({
   titleQuestion,
   question_type,
   answer,
+  countIsRight,
+  setErrorText,
 }) => {
   const dispatch = useAppDispatch();
 
@@ -52,16 +56,16 @@ const AnswerEdit: React.FC<Props> = ({
         shape="circle"
         icon={<CloseOutlined />}
         onClick={() => handleDeleteAnswer(idQuestion, id)}
-      >
-        {/* <CloseOutlined /> */}
-      </Button>
+      ></Button>
       <FormEditAnswer
         question_type={question_type}
         id={id}
         text={text}
         is_right={is_right}
-        answer={index}
+        answer={answer}
         position={index}
+        setErrorText={setErrorText}
+        countIsRight={countIsRight}
       />
     </div>
   );
