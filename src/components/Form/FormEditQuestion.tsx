@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { isTest } from 'models/tests/selectors';
-import { editQuestionValid, questionTitleValid } from 'utils/validation';
+import { questionValid, questionTitleValid } from 'utils/validation';
 import { editQuestion, reorderAnswer } from 'models/tests';
-import { AnswerState, QuestState } from 'models/tests/types';
+import { QuestState } from 'models/tests/types';
 
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Button } from 'antd';
@@ -23,12 +23,10 @@ import {
 
 interface Values {
   id: number;
-
   title: string;
 }
 
 interface Props {
-  idTest: number;
   id: number;
   question_type: string;
   answer: number;
@@ -38,7 +36,6 @@ interface Props {
 }
 
 const FormEditQuestion: React.FC<Values & Props> = ({
-  idTest,
   id,
   title,
   question_type,
@@ -54,21 +51,15 @@ const FormEditQuestion: React.FC<Values & Props> = ({
 
   const [showFormAddAnswer, setShowFormAddAnswer] = useState(false);
 
-  const handleButtonClick = () => {
-    setShowFormAddAnswer(true);
-  };
-
-  const isIdQuestion = id;
-
-  const test = useAppSelector(isTest);
-
-  const question = test?.questions.find((question) => question.id === id);
-
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    editQuestionValid(question_type, answer, countIsRight, setErrorText);
-  }, [question_type, answer, countIsRight, setErrorText]);
+  const test = useAppSelector(isTest);
+  const isIdQuestion = id;
+  const question = test?.questions.find((question) => question.id === id);
+
+  const handleShowForm = () => {
+    setShowFormAddAnswer(true);
+  };
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -81,6 +72,10 @@ const FormEditQuestion: React.FC<Values & Props> = ({
     );
   };
 
+  useEffect(() => {
+    questionValid(question_type, answer, countIsRight, setErrorText);
+  }, [question_type, answer, countIsRight, setErrorText]);
+
   return (
     <div className={styles.FormEditQuestion}>
       <Formik
@@ -92,15 +87,14 @@ const FormEditQuestion: React.FC<Values & Props> = ({
         ) => {
           const { id, title }: Partial<QuestState> = values;
           dispatch(editQuestion({ id, title, question_type, answer }));
-          // setEditQuestionTitle(question);
           setSubmitting(false);
         }}
       >
         {({ errors, touched }) => (
-          <Form className={classNames(styles.FormEdit)}>
+          <Form className={classNames(styles.FormQuestion)}>
             {question_type === 'single' && (
               <>
-                <label className={classNames(styles.LabelEdit)}>
+                <label className={classNames(styles.LabelQuestion)}>
                   <Field
                     type="text"
                     autoComplete="off"
@@ -118,7 +112,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
             )}
             {question_type === 'multiple' && (
               <>
-                <label className={classNames(styles.LabelEdit)}>
+                <label className={classNames(styles.LabelQuestion)}>
                   <Field
                     type="text"
                     autoComplete="off"
@@ -137,7 +131,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
 
             {question_type === 'number' && (
               <>
-                <label className={classNames(styles.LabelEdit)}>
+                <label className={classNames(styles.LabelQuestion)}>
                   <Field
                     type="text"
                     autoComplete="off"
@@ -191,22 +185,18 @@ const FormEditQuestion: React.FC<Values & Props> = ({
                           >
                             {(provided) => (
                               <div
-                                className={styles.EditAnswer}
+                                className={styles.AnswerEdit}
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                               >
                                 <AnswerEdit
-                                  countIsRight={countIsRight}
                                   id={id}
                                   text={text}
                                   is_right={is_right}
                                   idQuestion={isIdQuestion}
-                                  titleQuestion={title}
                                   question_type={question_type}
-                                  answer={answer}
                                   index={index}
-                                  setErrorText={setErrorText}
                                 />
                               </div>
                             )}
@@ -226,16 +216,13 @@ const FormEditQuestion: React.FC<Values & Props> = ({
             question.answers &&
             question.answers.map(({ text, is_right, id }, index: number) => (
               <AnswerEdit
-                countIsRight={countIsRight}
                 id={id}
                 text={text}
                 is_right={is_right}
                 idQuestion={isIdQuestion}
-                titleQuestion={title}
                 question_type={question_type}
-                answer={answer}
                 index={index}
-                setErrorText={setErrorText}
+                key={id}
               />
             ))}
         </>
@@ -245,15 +232,13 @@ const FormEditQuestion: React.FC<Values & Props> = ({
         question.answers &&
         question?.answers?.length === 0) ? (
         <div className={styles.BlockAddAnswer}>
-          <Button className={styles.BtnAddAnswer} onClick={handleButtonClick}>
+          <Button className={styles.BtnAddAnswer} onClick={handleShowForm}>
             Добавить ответ
           </Button>
           {showFormAddAnswer && (
             <FormAddAnswer
               idQuestion={id}
-              titleQuestion={title}
               question_type={question_type}
-              answer={answer}
               setShowFormAddAnswer={setShowFormAddAnswer}
             />
           )}

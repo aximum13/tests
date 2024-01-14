@@ -1,27 +1,21 @@
-import { Button, Spin } from 'antd';
-import styles from './AnswerEdit.module.sass';
-import classNames from 'classnames';
-import FormEditQuestions from 'components/Form/FormEditQuestion';
-import ModalCmp from 'components/Modal/Modal';
 import { useState } from 'react';
-import { useAppDispatch, useAppSelector } from 'hooks';
-import { deleteAnswer, deleteQuestion, editQuestion } from 'models/tests';
-import { isTest } from 'models/tests/selectors';
-import FormEditAnswer from 'components/Form/FormEditAnswer';
-import { AnswerState } from 'models/tests/types';
+
+import { useAppDispatch } from 'hooks';
+import { deleteAnswer } from 'models/tests';
+
+import { Button } from 'antd';
 import CloseOutlined from '@ant-design/icons/lib/icons/CloseOutlined';
+import { FormEditAnswer } from 'components/Form';
+import ModalChoice from 'components/ModalChoice';
+
+import styles from './AnswerEdit.module.sass';
 
 interface Props {
   id: number;
   text: string;
   is_right: boolean;
-  setErrorText: React.Dispatch<React.SetStateAction<string>>;
-
-  answer: number;
   index: number;
   idQuestion: number;
-  countIsRight: number;
-  titleQuestion: string;
   question_type: string;
 }
 
@@ -31,13 +25,15 @@ const AnswerEdit: React.FC<Props> = ({
   is_right,
   index,
   idQuestion,
-  titleQuestion,
   question_type,
-  answer,
-  countIsRight,
-  setErrorText,
 }) => {
   const dispatch = useAppDispatch();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleModalIsOpen = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   const handleDeleteAnswer = (isIdQuestion: number, id: number) => {
     dispatch(
@@ -49,23 +45,27 @@ const AnswerEdit: React.FC<Props> = ({
   };
 
   return (
-    <div className={styles.Question}>
+    <div className={styles.Answer}>
       <Button
         type="text"
         danger
         shape="circle"
         icon={<CloseOutlined />}
-        onClick={() => handleDeleteAnswer(idQuestion, id)}
+        onClick={handleModalIsOpen}
       ></Button>
       <FormEditAnswer
         question_type={question_type}
         id={id}
         text={text}
         is_right={is_right}
-        answer={answer}
         position={index}
-        setErrorText={setErrorText}
-        countIsRight={countIsRight}
+      />
+      <ModalChoice
+        width={560}
+        title={'Удалить ответ?'}
+        isOpen={isModalOpen}
+        handleCancel={handleModalIsOpen}
+        handleOk={() => handleDeleteAnswer(idQuestion, id)}
       />
     </div>
   );

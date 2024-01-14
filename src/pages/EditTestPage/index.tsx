@@ -1,49 +1,44 @@
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
-import { deleteTest, getTest, isLoading } from 'models/tests';
-import { allTests, isLoading as isLoad, isTest } from 'models/tests/selectors';
-
-import FormEditTitle from 'components/Form/FormEditTitle';
-import FormAddQuestion from 'components/Form/FormAddQuestion';
-import ModalCmp from 'components/Modal/Modal';
-import Spin from 'components/Spin';
+import { deleteTest, getTest, redirectToHome } from 'models/tests';
+import { isReady as ready, isTest, isLoading } from 'models/tests/selectors';
 
 import Select from 'antd/es/select';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
+
+import { FormEditTestTitle } from 'components/Form';
+import { FormAddQuestion } from 'components/Form';
+import ModalCmp from 'components/Modal/Modal';
+import Spin from 'components/Spin';
+import QuestionEdit from 'components/QuestionEdit';
+import LinkToHome from 'components/LinkToHome';
+import Title from 'components/Title';
+import ModalChoice from 'components/ModalChoice';
 
 import styles from './EditTestPage.module.sass';
-import QuestionEdit from 'components/QuestionEdit';
 
 const EditTestPage = () => {
   const [questionType, setQuestionType] = useState('');
   const [questionTypeError, setQuestionTypeError] = useState('');
 
-  const handleChangeTypeAnswer = (value: string) => {
-    setQuestionType(value);
-    questionTypeError !== '' && setQuestionTypeError('');
-  };
-
-  const dispatch = useAppDispatch();
+  const [modalAdd, setModalAdd] = useState(false);
+  const [modalDelete, setModalDelete] = useState(false);
 
   const test = useAppSelector(isTest);
+  const loading = useAppSelector(isLoading);
+  const isReady = useAppSelector(ready);
 
   const { id } = useParams();
-
   const idTest = id ? parseInt(id) : 0;
-
-  useEffect(() => {
-    if (idTest !== 0) {
-      dispatch(getTest(idTest));
-    }
-  }, [dispatch, idTest]);
 
   const { title, created_at, questions } = test
     ? test
     : { title: '', created_at: '', questions: [] };
 
-  const [isOpenModal, setIsOpenModal] = useState(false);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleModalAddQuestion = () => {
     if (
@@ -51,31 +46,55 @@ const EditTestPage = () => {
       questionType === 'multiple' ||
       questionType === 'number'
     )
-      setIsOpenModal(!isOpenModal);
+      setModalAdd(!modalAdd);
     else {
       setQuestionTypeError('Выберите тип вопроса');
-      setTimeout(() => {
-        setQuestionTypeError('');
-      }, 3000);
     }
+  };
+
+  const handleModalDelete = () => {
+    setModalDelete(!modalDelete);
+  };
+
+  const handleChangeTypeAnswer = (value: string) => {
+    setQuestionType(value);
   };
 
   const handleDeleteTest = () => {
     test && dispatch(deleteTest(test.id));
   };
 
-  console.log('EditTestPage');
+  useEffect(() => {
+    if (isReady) {
+      navigate('/');
+      dispatch(redirectToHome());
+    }
+  }, [isReady, navigate, dispatch]);
+
+  useEffect(() => {
+    if (questionTypeError) {
+      message.error(questionTypeError, 2);
+      setTimeout(() => {
+        setQuestionTypeError('');
+      }, 2000);
+    }
+  }, [questionTypeError]);
+
+  useEffect(() => {
+    if (idTest !== 0) {
+      dispatch(getTest(idTest));
+    }
+  }, [dispatch, idTest]);
 
   return (
     <>
-      {!test && <Spin />}
-      {test && (
+      {loading && <Spin />}
+      {!loading && test ? (
         <>
-          <Link className={styles.HomeLink} to={'/'}>
-            Вернуться на главную страницу
-          </Link>
+          <LinkToHome />
+          <Title className={styles.TitlePage} title={'Редактировать тест'} />
           <div className={styles.EditPage}>
-            <FormEditTitle
+            <FormEditTestTitle
               id={idTest}
               questions={questions}
               title={title}
@@ -89,7 +108,6 @@ const EditTestPage = () => {
                     <QuestionEdit
                       id={id}
                       title={title}
-                      idTest={idTest}
                       answer={answer}
                       question_type={question_type}
                       key={id}
@@ -119,17 +137,12 @@ const EditTestPage = () => {
                     },
                   ]}
                 ></Select>
-                {questionTypeError !== '' && (
-                  <p className={styles.QuestionTypeError}>
-                    {questionTypeError}
-                  </p>
-                )}
               </div>
               <Button onClick={handleModalAddQuestion}>Добавить вопрос</Button>
             </div>
 
-            <div className={styles.TestFooter}>
-              <Button danger onClick={handleDeleteTest}>
+            <div className={styles.BtnDeleteTest}>
+              <Button danger onClick={handleModalDelete}>
                 Удалить тест
               </Button>
             </div>
@@ -141,14 +154,23 @@ const EditTestPage = () => {
               <FormAddQuestion
                 question_type={questionType}
                 idTest={idTest}
-                setIsOpenModal={setIsOpenModal}
+                setIsOpenModal={setModalAdd}
               />
             }
-            isOpen={isOpenModal}
+            isOpen={modalAdd}
             handleCancel={handleModalAddQuestion}
             footer={null}
           />
+          <ModalChoice
+            width={560}
+            title={'Удалить тест?'}
+            isOpen={modalDelete}
+            handleCancel={handleModalDelete}
+            handleOk={handleDeleteTest}
+          />
         </>
+      ) : (
+        <LinkToHome />
       )}
     </>
   );

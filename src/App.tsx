@@ -2,20 +2,27 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks';
 import { isUser as user, isLoad } from 'models/users/selectors';
+import { message } from 'antd';
+import { isError } from 'models/tests/selectors';
 
 import AuthPage from 'pages/AuthPage';
 import HomePage from 'pages/HomePage';
 import NewTestPage from 'pages/NewTestPage';
+import TestPage from 'pages/TestPage';
+import EditTestPage from 'pages/EditTestPage';
 
 import Spin from 'components/Spin';
 import Container from 'components/Container';
 
 import './styles/app.sass';
-import EditTestPage from 'pages/EditTestPage';
 
 const App = () => {
   const loading = useAppSelector(isLoad);
   const isUser = useAppSelector(user);
+
+  const error = useAppSelector(isError);
+
+  error && message.error(error, 4);
 
   if (loading) {
     return <Spin />;
@@ -39,6 +46,7 @@ const App = () => {
                 )
               }
             />
+            <Route path="/:id" element={<TestPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         ) : (

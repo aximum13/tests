@@ -1,3 +1,3 @@
-import Spin from './Modal';
+import ModalCmp from './Modal';
 
-export default Spin;
+export default ModalCmp;

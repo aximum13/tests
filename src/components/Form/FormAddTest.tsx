@@ -8,7 +8,6 @@ import { Button } from 'antd';
 import { createTest } from 'models/tests';
 
 import styles from './Form.module.sass';
-import { useNavigate } from 'react-router-dom';
 
 const FormAddTest = () => {
   const initialValues = {
@@ -16,7 +15,6 @@ const FormAddTest = () => {
   };
 
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   return (
     <Formik
@@ -33,16 +31,12 @@ const FormAddTest = () => {
         }>
       ) => {
         const title: string = values.title;
-
         dispatch(createTest(title));
-
         setSubmitting(false);
-
-        navigate('/');
       }}
     >
       {({ errors, touched }) => (
-        <Form className={classNames(styles.FormSignUp)}>
+        <Form className={classNames(styles.FormAddTest)}>
           <label className={classNames(styles.Label)}>
             <Field
               type="text"

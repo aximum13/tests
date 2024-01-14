@@ -1,16 +1,31 @@
+.TitlePage
+    margin-top: 20px
+    text-align: center
+    font-size: 38px
+    @media (max-width: 767px)
+        font-size: 30px
+
+    @media (max-width: 559px)
+        font-size: 24px
+
 .TitleQuestionList
     margin-top: 20px
     text-align: center
+    font-size: 30px
+    @media (max-width: 767px)
+        font-size: 24px
+
+    @media (max-width: 559px)
+        font-size: 18px
 
 .QuestionsList
     display: flex
     flex-direction: column
-    gap: 20px
+    gap: 10px
     border: 2px solid #e8e8e8
     margin-top: 20px
     margin-bottom: 20px
     padding: 20px
-    // max-width: 800px
 
 .QuestionsItem
     border-bottom: 1px solid #e8e8e8
@@ -26,6 +41,12 @@
     gap: 60px
     margin-bottom: 30px
 
+    @media (max-width: 767px)
+        gap: 30px
+
+    @media (max-width: 559px)
+        flex-direction: column
+
 .HomeLink
     display: inline-block
     margin-top: 30px
@@ -38,6 +59,12 @@
     max-width: 180px
     width: 100%
 
+    @media (max-width: 559px)
+        max-width: 100%
+
 .QuestionTypeError
     position: absolute
     color: #ff4d4f
+
+.BtnDeleteTest
+    margin-bottom: 30px

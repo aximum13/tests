@@ -47,7 +47,13 @@ import {
   reorderAnswerApi,
 } from 'API/tests';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { AnswerState, QuestState, TestState, TestsState } from './types';
+import {
+  AnswerState,
+  QuestState,
+  SearchState,
+  TestState,
+  TestsState,
+} from './types';
 
 function* newTestSaga(action: PayloadAction<string>) {
   try {
@@ -80,11 +86,13 @@ function* watchNewTest() {
   yield takeEvery(NEW_TEST, newTestSaga);
 }
 
-function* getTestsSaga() {
+function* getTestsSaga(action: PayloadAction<SearchState>) {
   try {
     yield put(isLoading());
-    const response: Response = yield getTestsApi();
-    const isTest = localStorage.getItem('test');
+
+    const { page, per, search, sort } = action.payload;
+
+    const response: Response = yield getTestsApi(page, per, search, sort);
 
     if (!response.ok) {
       const errorResponse: { error: string } = yield response.json();
@@ -94,20 +102,13 @@ function* getTestsSaga() {
     const payload: TestsState = yield response.json();
 
     yield put(getTestsSuccess({ tests: payload.tests, meta: payload.meta }));
-
-    isTest === null &&
-      localStorage.setItem(
-        'tests',
-        JSON.stringify({ tests: payload.tests, meta: payload.meta })
-      );
   } catch (error: any) {
     console.error('Ошибка при получении тестов:', error);
 
-    let errorMessage = 'Ошибка при получении тестов. Попробуйте еще раз';
+    let errorMessage =
+      'Ошибка при получении тестов. Попробуйте еще раз или перезагрузите страницу';
     if (error.message === 'has already been taken') {
       errorMessage = 'Тест уже существует';
-    } else if (error.message) {
-      errorMessage = error.message;
     }
 
     yield put(isFailure(errorMessage));
@@ -140,8 +141,6 @@ function* getTestSaga(action: PayloadAction<number>) {
     let errorMessage = 'Ошибка при получении теста. Попробуйте еще раз';
     if (error.message === 'has already been taken') {
       errorMessage = 'Тест уже существует';
-    } else if (error.message) {
-      errorMessage = error.message;
     }
 
     yield put(isFailure(errorMessage));
@@ -196,9 +195,7 @@ function* deleteTestSaga(action: PayloadAction<number>) {
       throw new Error(
         errorResponse.error || 'Ошибка запроса при удалении теста'
       );
-    }
-
-    yield put(deleteTestSuccess(testId));
+    } else yield put(deleteTestSuccess(testId));
   } catch (error: any) {
     console.error('Ошибка при удалении теста:', error);
 
@@ -224,7 +221,6 @@ function* addQuestionSaga(
   }>
 ) {
   try {
-    // yield put(isLoading());
     const { title, question_type, idTest, answer } = action.payload;
 
     const response: Response = yield newQuestApi(
@@ -248,8 +244,6 @@ function* addQuestionSaga(
     let errorMessage = 'Ошибка при добавлении вопроса. Попробуйте еще раз';
     if (error.message === 'has already been taken') {
       errorMessage = 'Вопрос уже существует';
-    } else if (error.message) {
-      errorMessage = error.message;
     }
 
     yield put(isFailure(errorMessage));
@@ -264,7 +258,6 @@ function* watchAddQuestion() {
 
 function* editQuestionSaga(action: PayloadAction<Partial<QuestState>>) {
   try {
-    // yield put(isLoading());
     const question = action.payload;
     const id = question.id;
 
@@ -335,7 +328,6 @@ function* addAnswerSaga(
   }>
 ) {
   try {
-    // yield put(isLoading());
     const { text, is_right, idQuestion } = action.payload;
 
     const response: Response = yield newAnswerApi(idQuestion, text, is_right);
@@ -362,8 +354,6 @@ function* addAnswerSaga(
     let errorMessage = 'Ошибка при добавлении ответа. Попробуйте еще раз';
     if (error.message === 'has already been taken') {
       errorMessage = 'Ответ уже существует';
-    } else if (error.message) {
-      errorMessage = error.message;
     }
 
     yield put(isFailure(errorMessage));

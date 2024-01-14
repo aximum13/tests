@@ -1,98 +1,191 @@
+import classNames from 'classnames';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+import { isAllTests, isLoading, isPagination } from 'models/tests/selectors';
 import { logOutUser } from 'models/users';
+
 import { isUser } from 'models/users/selectors';
 import { useAppDispatch, useAppSelector } from 'hooks';
+import { getTests } from 'models/tests';
+import { TestState } from 'models/tests/types';
 
+import { sorted } from 'utils/sorted';
+import { filterTests } from 'utils/filter';
+import { formatDateTime } from 'utils/formatedDate';
+
+import ReactPaginate from 'react-paginate';
+import LogoutOutlined from '@ant-design/icons/lib/icons/LogoutOutlined';
 import Title from 'components/Title';
+import Spin from 'components/Spin';
 
 import styles from './HomePage.module.sass';
-import classNames from 'classnames';
-import { Link } from 'react-router-dom';
-import { getTests } from 'models/tests';
-import { allTests, isLoading } from 'models/tests/selectors';
-import { useEffect, useState } from 'react';
-import Spin from 'components/Spin';
-import { TestState } from 'models/tests/types';
-import { formatDateTime } from 'utils/formatedFate';
 
 const HomePage = () => {
-  const [sortDirection, setSortDirection] = useState('asc');
-
-  const [searchTerm, setSearchTerm] = useState('');
+  const [sortDirection, setSortDirection] = useState('');
   const [filteredTests, setFilteredTests] = useState<TestState[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const searchQuery = searchParams.get('search') || '';
+
+  const [searchValue, setSearchValue] = useState(searchQuery);
+  const [searchTerm, setSearchTerm] = useState(searchQuery);
 
   const user = useAppSelector(isUser);
-  const tests = useAppSelector(allTests);
+  const tests = useAppSelector(isAllTests);
+  const pagination = useAppSelector(isPagination);
+  const loading = useAppSelector(isLoading);
+
+  const itemsPerPage = 5;
+  const pageCount = pagination.total_pages;
+
+  const testsPerPage = filteredTests.slice(0, itemsPerPage);
+  const sortedTests = sorted(testsPerPage, sortDirection);
 
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    !tests.tests.length && dispatch(getTests());
-  }, [dispatch, tests]);
-
-  const loading = useAppSelector(isLoading);
-
   const handleLogOut = () => dispatch(logOutUser());
 
-  const sortedTests = filteredTests.slice().sort((a, b) => {
-    const dateA = new Date(a.created_at).getTime();
-    const dateB = new Date(b.created_at).getTime();
-
-    if (sortDirection === 'asc') {
-      return dateA - dateB;
-    } else {
-      return dateB - dateA;
-    }
-  });
-
   const toggleSortDirection = () => {
-    const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-    setSortDirection(newDirection);
+    if (!sortDirection) {
+      setSortDirection('created_at_asc');
+      searchParams.set('sort', 'created_at_asc');
+      setSearchParams(searchParams);
+    } else {
+      const newDirection =
+        sortDirection === 'created_at_desc'
+          ? 'created_at_asc'
+          : 'created_at_desc';
+      setSortDirection(newDirection);
+      searchParams.set('sort', newDirection);
+      setSearchParams(searchParams);
+    }
+  };
+
+  const handleSearchBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchQuery: string = e.target.value;
+
+    if (searchQuery.length) {
+      searchParams.set('search', searchQuery);
+    } else {
+      searchParams.delete('search');
+    }
+    setSearchParams(searchParams);
+    setSearchTerm(searchQuery);
+  };
+
+  const handlePageChange = (selectedItem: { selected: number }) => {
+    setCurrentPage(selectedItem.selected);
+    console.log(selectedItem.selected, selectedItem, currentPage);
   };
 
   useEffect(() => {
-    const filtered = tests.tests.filter((test) =>
-      test.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = filterTests(tests, searchTerm);
     setFilteredTests(filtered);
-  }, [searchTerm, tests.tests]);
+  }, [searchTerm, tests, currentPage]);
+
+  useEffect(() => {
+    if (!sortDirection) {
+      searchParams.delete('sort');
+      setSearchParams(searchParams);
+    }
+
+    dispatch(
+      getTests({
+        per: itemsPerPage,
+        page: currentPage + 1,
+        search: searchTerm,
+        sort: sortDirection,
+      })
+    );
+  }, [
+    searchTerm,
+    currentPage,
+    sortDirection,
+    dispatch,
+    searchParams,
+    setSearchParams,
+  ]);
 
   return (
     <>
       <div className={classNames(styles.Header)}>
         <Title className={styles.Title} title={`Привет,  ${user?.username}`} />
-        <button onClick={handleLogOut}>Выйти </button>
+        <button className={styles.BtnLogout} onClick={handleLogOut}>
+          <LogoutOutlined />
+          Выйти
+        </button>
       </div>
 
-      <div className={classNames(styles.TableHead)}>
-        {user?.is_admin && <Link to="/new-test">Добавить тест</Link>}
-        <button onClick={toggleSortDirection}>
-          Сортировать по дате ({sortDirection === 'asc' ? 'возр' : 'убыв'})
-        </button>
-        <input
-          type="text"
-          placeholder="Название теста"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+      {user?.is_admin && (
+        <Link className={classNames(styles.BtnAddTest)} to="/new-test">
+          Добавить тест
+        </Link>
+      )}
+      <div className={classNames(styles.TableContainer)}>
+        <div className={classNames(styles.TableHead)}>
+          <button
+            className={classNames(styles.BtnSortTests)}
+            onClick={toggleSortDirection}
+          >
+            Сортировать по дате (
+            {sortDirection === 'created_at_desc' ? '↑' : '↓'})
+          </button>
+          <input
+            className={styles.Filter}
+            type="text"
+            placeholder="Название теста"
+            value={searchValue}
+            onBlur={handleSearchBlur}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+        </div>
+
+        {loading && <Spin />}
+
+        <div className={classNames(styles.TableTest)}>
+          {!loading &&
+            sortedTests.map((test) => (
+              <div
+                key={test.id}
+                className={classNames(styles.TestItem, {
+                  [styles.TestItemUser]: !user?.is_admin,
+                })}
+              >
+                <Link
+                  // className={classNames(styles.BtnAddTest)}
+                  to={`/${test.id}`}
+                >
+                  {test.title}
+                </Link>
+                {/* <p className={classNames(styles.TestTitle)}>{test.title}</p> */}
+                <p className={classNames(styles.TestCreatedAt)}>
+                  {formatDateTime(test.created_at)}
+                </p>
+                {user?.is_admin && (
+                  <Link className={styles.TextDetail} to={`edit/${test.id}`}>
+                    Редактировать тест
+                  </Link>
+                )}
+              </div>
+            ))}
+        </div>
+
+        <ReactPaginate
+          previousLabel={'←'}
+          nextLabel={'→'}
+          pageCount={pageCount}
+          breakClassName={styles.Break}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageChange}
+          containerClassName={classNames(styles.Pagination, {
+            [styles.isLoading]: loading,
+          })}
+          activeClassName={styles.Active}
         />
       </div>
-
-      {loading && <Spin />}
-      <ul className={classNames(styles.TableTest)}>
-        {!loading &&
-          sortedTests.map((test) => (
-            <li key={test.id} className={classNames(styles.TestItem)}>
-              <p className={classNames(styles.s)}>{test.title}</p>
-              <p className={classNames(styles.s)}>
-                {formatDateTime(test.created_at)}
-              </p>
-              {user?.is_admin && (
-                <Link className={styles.TextDetail} to={`edit/${test.id}`}>
-                  Редактировать тест
-                </Link>
-              )}
-            </li>
-          ))}
-      </ul>
     </>
   );
 };

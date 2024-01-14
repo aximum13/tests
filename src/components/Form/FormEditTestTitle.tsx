@@ -1,17 +1,16 @@
 import classNames from 'classnames';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
 import { testTitleValid } from 'utils/validation';
+import { editTest } from 'models/tests';
+import { TestState } from 'models/tests/types';
 
+import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Button } from 'antd';
-import { createTest, editTest } from 'models/tests';
 
 import styles from './Form.module.sass';
-import { QuestState, TestState } from 'models/tests/types';
-import { createAnswer } from '../../models/tests';
 
-const FormEditTitle: React.FC<TestState> = ({
+const FormEditTestTitle: React.FC<TestState> = ({
   title,
   created_at,
   id,
@@ -38,13 +37,15 @@ const FormEditTitle: React.FC<TestState> = ({
       }}
     >
       {({ errors, touched }) => (
-        <Form className={classNames(styles.FormEditTitleTest)}>
-          <label className={classNames(styles.LabelEdit)}>
-            Изменить название теста
+        <Form className={classNames(styles.FormEditTestTitle)}>
+          <label
+            className={classNames(styles.LabelEdit, styles.LabelTestTitle)}
+          >
+            Название теста
             <Field
               type="text"
               autoComplete="off"
-              className={classNames(styles.FieldEdit, styles.Field)}
+              className={classNames(styles.FieldEditTestTitle, styles.Field)}
               name="title"
               placeholder="Название теста"
             />
@@ -67,4 +68,4 @@ const FormEditTitle: React.FC<TestState> = ({
   );
 };
 
-export default FormEditTitle;
+export default FormEditTestTitle;

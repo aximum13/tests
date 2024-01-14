@@ -7,7 +7,7 @@ interface ModalTypes {
   handleCancel?: () => void;
   content: React.ReactNode;
   className?: string;
-  title: string;
+  title?: string;
   footer?: ReactNode;
   width?: number;
 }

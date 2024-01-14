@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
-import { questionTitleValid, testTitleValid } from 'utils/validation';
+import { questionTitleValid } from 'utils/validation';
 
 import { Button } from 'antd';
 import { createQuestion } from 'models/tests';
@@ -57,12 +57,12 @@ const FormAddQuestion: React.FC<Props> = ({
         setSubmitting(false);
       }}
     >
-      {({ errors, touched, isSubmitting, handleSubmit }) => (
+      {({ errors, touched }) => (
         <>
-          <Form className={classNames(styles.FormEdit)}>
+          <Form className={classNames(styles.FormQuestion)}>
             {question_type === 'single' && (
               <>
-                <label className={classNames(styles.LabelEdit)}>
+                <label className={classNames(styles.LabelQuestion)}>
                   <Field
                     type="text"
                     autoComplete="off"
@@ -81,8 +81,7 @@ const FormAddQuestion: React.FC<Props> = ({
             )}
             {question_type === 'multiple' && (
               <>
-                {' '}
-                <label className={classNames(styles.LabelEdit)}>
+                <label className={classNames(styles.LabelQuestion)}>
                   <Field
                     type="text"
                     autoComplete="off"
@@ -101,8 +100,7 @@ const FormAddQuestion: React.FC<Props> = ({
 
             {question_type === 'number' && (
               <>
-                {' '}
-                <label className={classNames(styles.LabelEdit)}>
+                <label className={classNames(styles.LabelQuestion)}>
                   <Field
                     type="text"
                     autoComplete="off"
@@ -122,11 +120,10 @@ const FormAddQuestion: React.FC<Props> = ({
             <Button
               className={classNames(styles.ButtonEdit)}
               type="primary"
-              disabled={isSubmitting}
               htmlType="submit"
               size="large"
             >
-              {isSubmitting ? 'Отправка...' : 'Отправить'}
+              Отправить
             </Button>
           </Form>
         </>

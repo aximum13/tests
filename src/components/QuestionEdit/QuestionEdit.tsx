@@ -1,20 +1,25 @@
-import { Button, Spin } from 'antd';
-import styles from './QuestionEdit.module.sass';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import ModalCmp from 'components/Modal/Modal';
-import { useCallback, useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from 'hooks';
+
 import { deleteQuestion, editQuestion } from 'models/tests';
 import { isTest } from 'models/tests/selectors';
-import FormEditQuestion from 'components/Form/FormEditQuestion';
-import { editQuestionValid } from 'utils/validation';
+import { useAppDispatch, useAppSelector } from 'hooks';
+
+import { questionValid } from 'utils/validation';
+
+import { Button } from 'antd';
 import CloseOutlined from '@ant-design/icons/lib/icons/CloseOutlined';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
+
+import ModalCmp from 'components/Modal/Modal';
+import ModalChoice from 'components/ModalChoice';
+import { FormEditQuestion } from 'components/Form';
+
+import styles from './QuestionEdit.module.sass';
 
 interface Props {
   id: number;
   title: string;
-  idTest: number;
   answer: number;
   question_type: string;
 }
@@ -22,16 +27,14 @@ interface Props {
 const QuestionEdit: React.FC<Props> = ({
   id,
   title,
-  idTest,
   answer,
   question_type,
 }) => {
   const dispatch = useAppDispatch();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [modalDelete, setModalDelete] = useState(false);
   const [errorText, setErrorText] = useState('');
-
   const [errorQuestion, setErrorQuestion] = useState('');
 
   const isQuestions = useAppSelector(isTest);
@@ -41,11 +44,10 @@ const QuestionEdit: React.FC<Props> = ({
   const answerCount = isQuestion?.answers?.length || 0;
 
   const [prevAnswerCount, setPrevAnswerCount] = useState(answerCount);
-  console.log(prevAnswerCount, answerCount);
 
   useEffect(() => {
     if (prevAnswerCount !== answerCount) {
-      dispatch(editQuestion({ id, title, question_type, answer }));
+      dispatch(editQuestion({ id, title, question_type, answer: answerCount }));
       setPrevAnswerCount(answerCount);
     }
   }, [
@@ -64,38 +66,37 @@ const QuestionEdit: React.FC<Props> = ({
       0
     ) || 0;
 
+  useEffect(() => {
+    questionValid(question_type, answer, countIsRight, setErrorText);
 
-  const handleModalIsOpen = useCallback(() => {
-    if (isModalOpen) {
-      const validation = editQuestionValid(
-        question_type,
-        answer,
-        countIsRight,
-        setErrorQuestion
-      );
-      if (!validation) {
-        setErrorQuestion('Ошибка, исправьте вопрос');
-      } else {
-        setErrorQuestion('');
-      }
+    const validation = questionValid(
+      question_type,
+      answer,
+      countIsRight,
+      setErrorQuestion
+    );
+    if (!validation) {
+      setErrorQuestion('Ошибка, исправьте вопрос');
+    } else {
+      setErrorQuestion('');
     }
-    setIsModalOpen((prevIsModalOpen) => !prevIsModalOpen);
-  }, [
-    isModalOpen,
-    setIsModalOpen,
-    question_type,
-    answer,
-    countIsRight,
-    setErrorQuestion,
-  ]);
+  }, [question_type, answer, countIsRight, setErrorQuestion]);
+
+  const handleModalIsOpen = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   const handleDeleteQuestion = (id: number) => {
     dispatch(deleteQuestion(id));
   };
 
-  useEffect(() => {
-    editQuestionValid(question_type, answer, countIsRight, setErrorText);
-  }, [question_type, answer, countIsRight, setErrorText]);
+  const handleModalDelete = () => {
+    setModalDelete(!modalDelete);
+  };
+
+  // useEffect(() => {
+  //   questionValid(question_type, answer, countIsRight, setErrorText);
+  // }, [question_type, answer, countIsRight, setErrorText]);
 
   const titleModal = (question_type: string) => {
     switch (question_type) {
@@ -116,7 +117,6 @@ const QuestionEdit: React.FC<Props> = ({
           [styles.QuestionError]: !!errorQuestion && !!errorText,
         })}
       >
-        {' '}
         <Button
           size={'large'}
           type="text"
@@ -135,7 +135,7 @@ const QuestionEdit: React.FC<Props> = ({
           shape="circle"
           icon={<CloseOutlined />}
           className={styles.ButtonDelete}
-          onClick={() => handleDeleteQuestion(id)}
+          onClick={handleModalDelete}
         ></Button>
         <ModalCmp
           width={700}
@@ -143,7 +143,6 @@ const QuestionEdit: React.FC<Props> = ({
           content={
             <FormEditQuestion
               id={id}
-              idTest={idTest}
               title={title}
               answer={answerCount}
               countIsRight={countIsRight}
@@ -155,6 +154,13 @@ const QuestionEdit: React.FC<Props> = ({
           isOpen={isModalOpen}
           handleCancel={handleModalIsOpen}
           footer={null}
+        />
+        <ModalChoice
+          width={560}
+          title={'Удалить вопрос?'}
+          isOpen={modalDelete}
+          handleCancel={handleModalDelete}
+          handleOk={() => handleDeleteQuestion(id)}
         />
       </div>
     </>

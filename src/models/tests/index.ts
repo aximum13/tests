@@ -1,12 +1,26 @@
 import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { AllTestsState, AnswerState, QuestState, TestState } from './types';
+import {
+  AllTestsState,
+  AnswerState,
+  QuestState,
+  SearchState,
+  TestsState,
+  TestState,
+} from './types';
 
 const initialState: AllTestsState = {
-  testsData: { tests: [], meta: {} },
+  testsData: {
+    tests: [],
+    meta: {
+      total_pages: 1,
+      total_count: 5,
+    },
+  },
   test: null,
   loading: false,
   error: null,
+  isReady: false,
 };
 
 const testsSlice = createSlice({
@@ -18,13 +32,13 @@ const testsSlice = createSlice({
     addTestSuccess: (state, action: PayloadAction<TestState>) => {
       state.loading = false;
       state.testsData.tests.push(action.payload);
+      state.isReady = true;
     },
 
     // Все тесты
 
-    getTestsSuccess: (state, action) => {
+    getTestsSuccess: (state, action: PayloadAction<TestsState>) => {
       state.loading = false;
-      // state.test = null;
       state.testsData.tests = action.payload.tests;
       state.testsData.meta = action.payload.meta;
     },
@@ -68,6 +82,7 @@ const testsSlice = createSlice({
         state.testsData.tests = state.testsData.tests.filter(
           (test) => test.id !== testId
         );
+        state.isReady = true;
       }
     },
 
@@ -143,6 +158,8 @@ const testsSlice = createSlice({
       }
     },
 
+    // Перемещение ответа
+
     reorderedAnswerSuccess: (
       state,
       action: PayloadAction<Partial<AnswerState>>
@@ -202,6 +219,11 @@ const testsSlice = createSlice({
       state.error = action.payload;
     },
 
+    redirectToHome: (state) => {
+      state.isReady = false;
+      state.test = null;
+    },
+
     clearError: (state) => {
       state.error = null;
     },
@@ -214,7 +236,9 @@ export const createTest = createAction(NEW_TEST, (payload: string) => ({
 }));
 
 export const GET_TESTS = 'tests/getTests';
-export const getTests = createAction(GET_TESTS);
+export const getTests = createAction(GET_TESTS, (payload: SearchState) => ({
+  payload,
+}));
 
 export const GET_TEST = 'tests/getTest';
 export const getTest = createAction(GET_TEST, (payload: number) => ({
@@ -308,6 +332,7 @@ export const {
   isLoading,
   isFailure,
   clearError,
+  redirectToHome,
 } = actions;
 
 export default reducer;

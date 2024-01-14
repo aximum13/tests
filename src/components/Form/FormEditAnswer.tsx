@@ -1,16 +1,15 @@
 import classNames from 'classnames';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
-import { answerValid, editQuestionValid } from 'utils/validation';
-
-import { Button } from 'antd';
 import { editAnswer } from 'models/tests';
+import { answerValid } from 'utils/validation';
+import { AnswerState } from 'models/tests/types';
+
+import { Field, Form, Formik, FormikHelpers } from 'formik';
+import { Button } from 'antd';
+import Checkbox from 'antd/es/checkbox/Checkbox';
 
 import styles from './Form.module.sass';
-import { AnswerState } from 'models/tests/types';
-import { useState } from 'react';
-import Checkbox from 'antd/es/checkbox/Checkbox';
 
 interface Values {
   id: number;
@@ -20,21 +19,15 @@ interface Values {
 }
 
 interface Props {
-  answer: number;
   question_type: string;
-  setErrorText: React.Dispatch<React.SetStateAction<string>>;
-  countIsRight: number;
 }
 
 const FormEditAnswer: React.FC<Values & Props> = ({
   id,
   text,
   is_right,
-  answer,
   position,
   question_type,
-  setErrorText,
-  countIsRight,
 }) => {
   const initialValues: Values = {
     id,
@@ -53,10 +46,9 @@ const FormEditAnswer: React.FC<Values & Props> = ({
         const answerEdit: AnswerState = values;
         dispatch(editAnswer(answerEdit));
         setSubmitting(false);
-        // editQuestionValid(question_type, answer, countIsRight, setErrorText);
       }}
     >
-      {({ errors, touched }) => (
+      {({ errors, touched, values }) => (
         <Form className={classNames(styles.FormEditAnswer)}>
           {question_type !== 'number' ? (
             <>
@@ -72,12 +64,11 @@ const FormEditAnswer: React.FC<Values & Props> = ({
                   <div className={classNames(styles.Error)}>{errors.text}</div>
                 ) : null}
               </label>
-              <Field
-                className={styles.ButtonAddIsRight}
-                type="checkbox"
-                name="is_right"
-                as={Checkbox}
-              />
+              <label className={classNames(styles.LabelEditIsRight)}>
+                {values.is_right ? 'Верно' : 'Неверно'}
+
+                <Field type="checkbox" name="is_right" as={Checkbox} />
+              </label>
             </>
           ) : (
             <>

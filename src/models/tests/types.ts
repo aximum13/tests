@@ -3,11 +3,12 @@ export type AllTestsState = {
   test?: TestState | null;
   error?: string | null;
   loading?: boolean;
+  isReady?: boolean;
 };
 
 export type TestsState = {
   tests: TestState[];
-  meta: Object;
+  meta: { total_pages: number; total_count: number };
 };
 
 export type TestState = {
@@ -30,4 +31,11 @@ export type AnswerState = {
   text: string;
   is_right: boolean;
   position: number;
+};
+
+export type SearchState = {
+  page: number;
+  per: number;
+  search: string;
+  sort: string;
 };

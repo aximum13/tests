@@ -5,24 +5,20 @@ import { useAppDispatch } from 'hooks';
 import { answerValid } from 'utils/validation';
 
 import { Button } from 'antd';
-import { createAnswer, editQuestion } from 'models/tests';
+import { createAnswer } from 'models/tests';
 
 import styles from './Form.module.sass';
 import Checkbox from 'antd/es/checkbox/Checkbox';
 
 interface Props {
   idQuestion: number;
-  titleQuestion: string;
   question_type: string;
-  answer: number;
   setShowFormAddAnswer: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const FormAddAnswer: React.FC<Props> = ({
   idQuestion,
-  titleQuestion,
   question_type,
-  answer,
   setShowFormAddAnswer,
 }) => {
   const initialValues = {
@@ -60,7 +56,7 @@ const FormAddAnswer: React.FC<Props> = ({
         setSubmitting(false);
       }}
     >
-      {({ errors, touched }) => (
+      {({ errors, touched, values }) => (
         <Form className={classNames(styles.FormAddAnswer)}>
           {question_type !== 'number' ? (
             <>
@@ -76,12 +72,11 @@ const FormAddAnswer: React.FC<Props> = ({
                   <div className={classNames(styles.Error)}>{errors.text}</div>
                 ) : null}
               </label>
-              <Field
-                className={styles.ButtonAddIsRight}
-                type="checkbox"
-                name="is_right"
-                as={Checkbox}
-              />
+              <label className={classNames(styles.LabelEditIsRight)}>
+                {values.is_right ? 'Верно' : 'Неверно'}
+
+                <Field type="checkbox" name="is_right" as={Checkbox} />
+              </label>
             </>
           ) : (
             <>

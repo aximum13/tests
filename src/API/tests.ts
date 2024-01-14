@@ -66,9 +66,32 @@ export const newAnswerApi = async (
   return response;
 };
 
-export const getTestsApi = async () => {
+export const getTestsApi = async (
+  page: number,
+  per: number,
+  search: string,
+  sort: string
+) => {
+  const queryParams = new URLSearchParams({});
+
+  if (search) {
+    queryParams.append('page', page.toString());
+    queryParams.append('per', per.toString());
+    queryParams.append('search', search);
+  } else {
+    if (sort) {
+      queryParams.append('page', page.toString());
+      queryParams.append('per', per.toString());
+      queryParams.append('sort', sort);
+    } else if (page === 1) {
+    } else {
+      queryParams.append('page', page.toString());
+      queryParams.append('per', per.toString());
+    }
+  }
+
   const response = await fetch(
-    `https://interns-test-fe.snp.agency/api/v1/tests`,
+    `https://interns-test-fe.snp.agency/api/v1/tests?${queryParams}`,
     {
       method: 'GET',
       credentials: 'include',
@@ -78,6 +101,7 @@ export const getTestsApi = async () => {
       },
     }
   );
+
   return response;
 };
 
