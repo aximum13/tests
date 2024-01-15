@@ -1,0 +1,76 @@
+.LabelAnswer
+    display: block
+    margin-bottom: 10px
+    font-weight: 400
+    border: 1px solid transparent
+    border-radius: 4px
+    transition: border-color 0.3s
+
+.CheckedAnswer
+    display: none
+
+    & + p
+        display: inline-block
+        padding: 8px 12px
+        margin: 0
+        font-size: 16px
+        cursor: pointer
+        width: 100%
+        border-radius: 4px
+        border: 1px solid #3498db
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s
+
+        &:hover
+            border-color: #3498db7c
+
+        @media (max-width: 767px)
+            font-size: 14px
+            border-color: #3498db
+
+    &:checked + p
+        background-color: #3498db
+        color: #fff
+        border-color: #3498db
+
+    &:disabled + p
+        &:hover
+            border-color: #3498db
+
+    &.CheckedMultipleAnswer
+        &:checked + p
+            background-color: #3498db
+            color: #fff
+            border-color: #3498db
+
+.BtnSelectedAnswer
+    display: inline-block
+    align-self: center
+    border: 1px solid #3498db
+    padding: 6px
+    border-radius: 4px
+    background-color: #3498db
+    color: #fff
+    transition: background-color 0.3s
+    &:disabled
+        background-color: #ccc
+        border-color: #ccc
+        cursor: default
+
+    &:hover
+        background-color: #2677ad
+        color: #fff
+
+    &:disabled
+        background-color: #ccc
+        border-color: #ccc
+        cursor: default
+
+.NumberInput
+    padding: 8px
+    margin-right: 10px
+    border: 1px solid #3498db
+    border-radius: 4px
+    font-size: 14px
+
+    &:disabled
+        border-color: #ccc

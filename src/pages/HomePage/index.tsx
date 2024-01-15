@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import { isAllTests, isLoading, isPagination } from 'models/tests/selectors';
@@ -20,12 +20,16 @@ import Title from 'components/Title';
 import Spin from 'components/Spin';
 
 import styles from './HomePage.module.sass';
+import { validTest } from 'utils/validation';
+import ModalChoice from 'components/ModalChoice';
 
 const HomePage = () => {
   const [sortDirection, setSortDirection] = useState('');
   const [filteredTests, setFilteredTests] = useState<TestState[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [idTest, setIdTest] = useState(0);
 
   const searchQuery = searchParams.get('search') || '';
 
@@ -44,8 +48,18 @@ const HomePage = () => {
   const sortedTests = sorted(testsPerPage, sortDirection);
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleLogOut = () => dispatch(logOutUser());
+
+  const handleModalToggle = (id: number) => {
+    setIsModalOpen(!isModalOpen);
+    setIdTest(id);
+  };
+
+  const handleTestTake = (id: number) => {
+    if (idTest) navigate(`/${id}`);
+  };
 
   const toggleSortDirection = () => {
     if (!sortDirection) {
@@ -153,13 +167,18 @@ const HomePage = () => {
                   [styles.TestItemUser]: !user?.is_admin,
                 })}
               >
-                <Link
-                  // className={classNames(styles.BtnAddTest)}
-                  to={`/${test.id}`}
-                >
-                  {test.title}
-                </Link>
-                {/* <p className={classNames(styles.TestTitle)}>{test.title}</p> */}
+                {validTest(test) ? (
+                  <button
+                    className={classNames(styles.TestTitle)}
+                    onClick={() => handleModalToggle(test.id)}
+                  >
+                    {test.title}
+                  </button>
+                ) : (
+                  <p className={styles.noValidTest}>
+                    {test.title} - в разработке
+                  </p>
+                )}
                 <p className={classNames(styles.TestCreatedAt)}>
                   {formatDateTime(test.created_at)}
                 </p>
@@ -184,6 +203,13 @@ const HomePage = () => {
             [styles.isLoading]: loading,
           })}
           activeClassName={styles.Active}
+        />
+        <ModalChoice
+          width={560}
+          title={'Начать прохождение теста?'}
+          isOpen={isModalOpen}
+          handleCancel={() => handleModalToggle(idTest)}
+          handleOk={() => handleTestTake(idTest)}
         />
       </div>
     </>

@@ -11,6 +11,8 @@ interface ModalTypes {
   title?: string;
   footer?: ReactNode;
   width?: number;
+  textOk?: string;
+  textCancel?: string;
 }
 
 const ModalChoice: React.FC<ModalTypes> = ({
@@ -21,6 +23,8 @@ const ModalChoice: React.FC<ModalTypes> = ({
   title,
   footer,
   width,
+  textOk,
+  textCancel,
 }) => {
   return (
     <Modal
@@ -35,14 +39,14 @@ const ModalChoice: React.FC<ModalTypes> = ({
             className={styles.ModalChoiceBtn}
             onClick={handleOk}
           >
-            Да
+            {textOk ? textOk : 'Да'}
           </Button>
           <Button
             size="large"
             className={styles.ModalChoiceBtn}
             onClick={handleCancel}
           >
-            Нет
+            {textCancel ? textCancel : 'Нет'}
           </Button>
         </div>,
       ]}

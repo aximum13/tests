@@ -1,0 +1,159 @@
+.TestTitle
+    margin-top: 20px
+    text-align: center
+    font-size: 38px
+    @media (max-width: 767px)
+        font-size: 30px
+
+    @media (max-width: 559px)
+        font-size: 24px
+
+.QuestionList
+    display: flex
+    flex-direction: column
+    gap: 10px
+    border: 2px solid #e8e8e8
+    margin-top: 20px
+    margin-bottom: 20px
+    padding: 20px
+
+.QuestionItem
+    display: flex
+    flex-direction: column
+    justify-content: space-between
+    gap: 20px
+    padding: 10px 0
+    border-bottom: 1px solid #e8e8e8
+
+    &:last-child
+        border-bottom: none
+
+.QuestionTitle
+    font-size: 24px
+    font-weight: 600
+    padding-bottom: 16px
+    color: #333
+    border-bottom: 1px solid #e8e8e8
+
+    @media (max-width: 767px)
+        font-size: 20px
+
+    @media (max-width: 559px)
+        font-size: 18px
+
+.LabelAnswer
+    display: block
+    margin-bottom: 10px
+    font-weight: 400
+    border: 1px solid transparent
+    border-radius: 4px
+    transition: border-color 0.3s
+
+.CheckedAnswer
+    display: none
+
+    & + p
+        display: inline-block
+        padding: 8px 12px
+        margin: 0
+        font-size: 16px
+        cursor: pointer
+        width: 100%
+        border-radius: 4px
+        border: 1px solid #3498db
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s
+
+        &:hover
+            border-color: #3498db7c
+
+        @media (max-width: 767px)
+            font-size: 14px
+            border-color: #3498db
+
+    &:checked + p
+        background-color: #3498db
+        color: #fff
+        border-color: #3498db
+
+    &:disabled + p
+        &:hover
+            border-color: #3498db
+
+    &.CheckedMultipleAnswer
+        &:checked + p
+            background-color: #3498db
+            color: #fff
+            border-color: #3498db
+
+.BtnSelectedAnswer
+    display: inline-block
+    align-self: center
+    border: 1px solid #3498db
+    padding: 6px
+    border-radius: 4px
+    background-color: #3498db
+    color: #fff
+    transition: background-color 0.3s
+    &:disabled
+        background-color: #ccc
+        border-color: #ccc
+        cursor: default
+
+    &:hover
+        background-color: #2677ad
+        color: #fff
+
+    &:disabled
+        background-color: #ccc
+        border-color: #ccc
+        cursor: default
+
+.NumberInput
+    padding: 8px
+    margin-right: 10px
+    border: 1px solid #3498db
+    border-radius: 4px
+    font-size: 14px
+
+    &:disabled
+        border-color: #ccc
+
+.BtnFinishTest
+    display: block
+    margin: 0 auto
+    padding: 6px
+    border-radius: 4px
+    margin-bottom: 20px
+    background-color: #2ecc71
+    color: #fff
+
+.ModalTitle
+    margin-top: 10px
+    text-align: center
+    font-size: 38px
+    line-height: 1.2
+    margin-bottom: 20px
+    @media (max-width: 767px)
+        font-size: 30px
+
+    @media (max-width: 559px)
+        font-size: 24px
+
+.ModalInfo
+    display: flex
+    flex-direction: column
+    gap: 16px
+    margin-bottom: 20px
+
+.ModalText
+    text-align: center
+    font-size: 20px
+    line-height: 1.2
+
+    @media (max-width: 559px)
+        font-size: 16px
+
+.BtnGroup
+    display: flex
+    justify-content: space-around
+    margin-top: 20px

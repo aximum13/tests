@@ -44,13 +44,21 @@ const FormAddAnswer: React.FC<Props> = ({
           is_right: boolean;
         }>
       ) => {
-        dispatch(
-          createAnswer({
-            text: values.text,
-            is_right: values.is_right,
-            idQuestion,
-          })
-        );
+        question_type !== 'number'
+          ? dispatch(
+              createAnswer({
+                text: values.text,
+                is_right: values.is_right,
+                idQuestion,
+              })
+            )
+          : dispatch(
+              createAnswer({
+                text: values.text,
+                is_right: true,
+                idQuestion,
+              })
+            );
 
         setShowFormAddAnswer(false);
         setSubmitting(false);
