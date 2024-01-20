@@ -13,7 +13,6 @@ interface Props {
   ) => void;
 
   handleSingleAnswerChange: (id: number, value: number) => void;
-  disabledQuestion: (id: number) => boolean | undefined;
 }
 
 const QuestionNumber: React.FC<Props> = ({
@@ -22,30 +21,22 @@ const QuestionNumber: React.FC<Props> = ({
   handleNumberChange,
   handleKeyDownNumber,
   handleSingleAnswerChange,
-  disabledQuestion,
 }) => {
   return (
     <>
       <input
         type="text"
         className={styles.NumberInput}
-        disabled={disabledQuestion(questionId)}
         value={numberAnswers[questionId] || ''}
         placeholder="Введите число"
         onChange={(e) => handleNumberChange(+e.target.value, questionId)}
         onKeyDown={(e) =>
           handleKeyDownNumber(e, questionId, numberAnswers[questionId])
         }
-      />
-      <button
-        disabled={disabledQuestion(questionId)}
-        onClick={() =>
+        onBlur={() =>
           handleSingleAnswerChange(questionId, numberAnswers[questionId])
         }
-        className={styles.BtnSelectedAnswer}
-      >
-        Ответ
-      </button>
+      />
     </>
   );
 };

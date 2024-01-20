@@ -5,11 +5,10 @@ import styles from './QuestionPlay.module.sass';
 
 interface Props {
   indexAnswer: number;
-  userSelectedAnswers: UserAnswersType[] | undefined;
   questionId: number;
-  handleSingleAnswerChange: (id: number, value: number) => void;
-  disabledQuestion: (id: number) => boolean | undefined;
+  userSelectedAnswers: UserAnswersType[] | undefined;
   answer: AnswerState;
+  handleSingleAnswerChange: (id: number, value: number) => void;
 }
 
 const QuestionSingle: React.FC<Props> = ({
@@ -17,21 +16,22 @@ const QuestionSingle: React.FC<Props> = ({
   userSelectedAnswers,
   questionId,
   handleSingleAnswerChange,
-  disabledQuestion,
+
   answer,
 }) => {
+  const isChecked = userSelectedAnswers?.some(
+    (answer) =>
+      answer.questionId === questionId && answer.answer === indexAnswer
+  );
+
   return (
     <label className={styles.LabelAnswer}>
       <input
-        disabled={disabledQuestion(questionId)}
         className={styles.CheckedAnswer}
         type="radio"
         name={`question-${questionId}`}
         value={indexAnswer}
-        checked={userSelectedAnswers?.some(
-          (answer) =>
-            answer.questionId === questionId && answer.answer === indexAnswer
-        )}
+        checked={isChecked}
         onChange={(e) => handleSingleAnswerChange(questionId, +e.target.value)}
       />
       {

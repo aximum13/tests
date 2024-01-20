@@ -51,7 +51,15 @@ const TestPage = () => {
     id !== questionId && dispatch(getQuestion(id));
   };
 
-  const handleMultipleAnswerChange = (id: number, indexAnswer: number) => {
+  const handleMultipleAnswerChange = (
+    id: number,
+    indexAnswer: number,
+
+    multipleAnswers: {
+      id: number;
+      value: number;
+    }[]
+  ) => {
     setMultipleAnswers((prevAnswers) => {
       const updatedAnswers = prevAnswers[id] || [];
       const isChecked = updatedAnswers.some(
@@ -77,6 +85,8 @@ const TestPage = () => {
     if (questionId !== id) {
       dispatch(getQuestion(id));
     }
+
+    handleMultipleAnswerSubmit(id, multipleAnswers);
   };
 
   const handleMultipleAnswerSubmit = (
@@ -86,7 +96,12 @@ const TestPage = () => {
       value: number;
     }[]
   ) => {
-    dispatch(setAnswer({ questionId: id, answer: multipleAnswers }));
+    dispatch(
+      setAnswer({
+        questionId: id,
+        answer: multipleAnswers,
+      })
+    );
   };
 
   const handleNumberChange = (value: number, id: number) => {
@@ -104,13 +119,6 @@ const TestPage = () => {
     if (event.key === 'Enter') {
       handleSingleAnswerChange(id, numberAnswer);
     }
-  };
-
-  const disabledQuestion = (id: number) => {
-    const isAnswered = userSelectedAnswers?.some(
-      (answer) => answer.questionId === id
-    );
-    return isAnswered && true;
   };
 
   const handleModalOpen = () => {
@@ -159,7 +167,6 @@ const TestPage = () => {
                         userSelectedAnswers={userSelectedAnswers}
                         questionId={question.id}
                         handleSingleAnswerChange={handleSingleAnswerChange}
-                        disabledQuestion={disabledQuestion}
                         answer={answer}
                         key={indexAnswer}
                       />
@@ -175,28 +182,14 @@ const TestPage = () => {
                         questionId={question.id}
                         multipleAnswers={multipleAnswers}
                         key={indexAnswer}
-                        disabledQuestion={disabledQuestion}
                         handleMultipleAnswerChange={handleMultipleAnswerChange}
                       />
                     ))}
-                    <button
-                      disabled={disabledQuestion(question.id)}
-                      onClick={() =>
-                        handleMultipleAnswerSubmit(
-                          question.id,
-                          multipleAnswers[question.id]
-                        )
-                      }
-                      className={styles.BtnSelectedAnswer}
-                    >
-                      Ответ
-                    </button>
                   </>
                 )}
                 {question.question_type === 'number' && (
                   <QuestionNumber
                     questionId={question.id}
-                    disabledQuestion={disabledQuestion}
                     numberAnswers={numberAnswers}
                     handleNumberChange={handleNumberChange}
                     handleKeyDownNumber={handleKeyDownNumber}

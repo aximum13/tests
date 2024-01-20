@@ -20,18 +20,21 @@ const playTestSlice = createSlice({
 
     setAnswer: (state, action: PayloadAction<UserAnswersType>) => {
       const { questionId, answer } = action.payload;
-      const existingAnswerIndex = state.userAnswers?.findIndex(
+
+      const selectedAnswerIndex = state.userAnswers?.findIndex(
         (userAnswer) => userAnswer.questionId === questionId
       );
 
-      if (
-        existingAnswerIndex !== -1 &&
-        state.userAnswers &&
-        existingAnswerIndex
-      ) {
-        state.userAnswers[existingAnswerIndex] = { questionId, answer };
-      } else {
-        state.userAnswers?.push({ questionId, answer });
+      if (state.userAnswers) {
+        if (selectedAnswerIndex !== undefined && selectedAnswerIndex === -1) {
+          state.userAnswers?.push({ questionId, answer });
+        }
+        state.userAnswers = state.userAnswers.map(
+          (selectedAnswer: UserAnswersType) =>
+            selectedAnswer.questionId === questionId
+              ? { ...selectedAnswer, answer }
+              : selectedAnswer
+        );
       }
     },
 

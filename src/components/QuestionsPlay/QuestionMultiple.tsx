@@ -5,15 +5,22 @@ import { AnswerState } from 'models/tests/types';
 import styles from './QuestionPlay.module.sass';
 
 interface Props {
+  questionId: number;
   multipleAnswers: {
     [key: number]: {
       id: number;
       value: number;
     }[];
   };
-  questionId: number;
-  disabledQuestion: (id: number) => boolean | undefined;
-  handleMultipleAnswerChange: (id: number, indexAnswer: number) => void;
+  handleMultipleAnswerChange: (
+    id: number,
+    indexAnswer: number,
+
+    multipleAnswers: {
+      id: number;
+      value: number;
+    }[]
+  ) => void;
 
   indexAnswer: number;
   answer: AnswerState;
@@ -22,10 +29,8 @@ interface Props {
 const QuestionMultiple: React.FC<Props> = ({
   indexAnswer,
   answer,
-
   multipleAnswers,
   questionId,
-  disabledQuestion,
   handleMultipleAnswerChange,
 }) => {
   return (
@@ -33,7 +38,6 @@ const QuestionMultiple: React.FC<Props> = ({
       <div key={indexAnswer}>
         <label className={styles.LabelAnswer}>
           <input
-            disabled={disabledQuestion(questionId)}
             className={classNames(
               styles.CheckedAnswer,
               styles.CheckedMultipleAnswer
@@ -45,7 +49,12 @@ const QuestionMultiple: React.FC<Props> = ({
                 userAnswer.id === questionId && userAnswer.value === indexAnswer
             )}
             onChange={(e) =>
-              handleMultipleAnswerChange(questionId, +e.target.value)
+              handleMultipleAnswerChange(
+                questionId,
+                +e.target.value,
+
+                multipleAnswers[questionId]
+              )
             }
           />
           {
