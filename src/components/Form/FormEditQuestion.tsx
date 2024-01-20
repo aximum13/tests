@@ -20,6 +20,7 @@ import {
   Draggable,
   DropResult,
 } from 'react-beautiful-dnd';
+import ResetForm from './ResetForm';
 
 interface Values {
   id: number;
@@ -33,6 +34,7 @@ interface Props {
   countIsRight: number;
   errorText: string;
   setErrorText: React.Dispatch<React.SetStateAction<string>>;
+  isOpen: boolean;
 }
 
 const FormEditQuestion: React.FC<Values & Props> = ({
@@ -43,6 +45,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
   countIsRight,
   setErrorText,
   errorText,
+  isOpen,
 }) => {
   const initialValues: Values = {
     id,
@@ -156,6 +159,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
             >
               Сохранить
             </Button>
+            <ResetForm />
           </Form>
         )}
       </Formik>
@@ -191,6 +195,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
                                 {...provided.dragHandleProps}
                               >
                                 <AnswerEdit
+                                  isOpenQuestion={isOpen}
                                   id={id}
                                   text={text}
                                   is_right={is_right}
@@ -216,6 +221,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
             question.answers &&
             question.answers.map(({ text, is_right, id }, index: number) => (
               <AnswerEdit
+                isOpenQuestion={isOpen}
                 id={id}
                 text={text}
                 is_right={is_right}

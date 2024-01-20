@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAppDispatch } from 'hooks';
 import { deleteAnswer } from 'models/tests';
@@ -9,6 +9,7 @@ import { FormEditAnswer } from 'components/Form';
 import ModalChoice from 'components/ModalChoice';
 
 import styles from './AnswerEdit.module.sass';
+import { useFormikContext } from 'formik';
 
 interface Props {
   id: number;
@@ -17,6 +18,7 @@ interface Props {
   index: number;
   idQuestion: number;
   question_type: string;
+  isOpenQuestion: boolean;
 }
 
 const AnswerEdit: React.FC<Props> = ({
@@ -26,6 +28,7 @@ const AnswerEdit: React.FC<Props> = ({
   index,
   idQuestion,
   question_type,
+  isOpenQuestion,
 }) => {
   const dispatch = useAppDispatch();
 
@@ -59,6 +62,7 @@ const AnswerEdit: React.FC<Props> = ({
         text={text}
         is_right={is_right}
         position={index}
+        isOpenQuestion={isOpenQuestion}
       />
       <ModalChoice
         width={560}

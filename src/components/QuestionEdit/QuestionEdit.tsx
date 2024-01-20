@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
-import { deleteQuestion, editQuestion } from 'models/tests';
+import { deleteQuestion, editQuestion, toggleModal } from 'models/tests';
 import { isTest } from 'models/tests/selectors';
 import { useAppDispatch, useAppSelector } from 'hooks';
 
@@ -84,6 +84,12 @@ const QuestionEdit: React.FC<Props> = ({
 
   const handleModalIsOpen = () => {
     setIsModalOpen(!isModalOpen);
+    dispatch(toggleModal());
+  };
+
+  const handleModalIsClose = () => {
+    setIsModalOpen(false);
+    dispatch(toggleModal());
   };
 
   const handleDeleteQuestion = (id: number) => {
@@ -93,10 +99,6 @@ const QuestionEdit: React.FC<Props> = ({
   const handleModalDelete = () => {
     setModalDelete(!modalDelete);
   };
-
-  // useEffect(() => {
-  //   questionValid(question_type, answer, countIsRight, setErrorText);
-  // }, [question_type, answer, countIsRight, setErrorText]);
 
   const titleModal = (question_type: string) => {
     switch (question_type) {
@@ -149,10 +151,11 @@ const QuestionEdit: React.FC<Props> = ({
               question_type={question_type}
               setErrorText={setErrorText}
               errorText={errorText}
+              isOpen={isModalOpen}
             />
           }
           isOpen={isModalOpen}
-          handleCancel={handleModalIsOpen}
+          handleCancel={handleModalIsClose}
           footer={null}
         />
         <ModalChoice

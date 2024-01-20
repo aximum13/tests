@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks';
@@ -22,7 +23,9 @@ const App = () => {
 
   const error = useAppSelector(isError);
 
-  error && message.error(error, 4);
+  useEffect(() => {
+    error && message.error(error, 4);
+  });
 
   if (loading) {
     return <Spin />;

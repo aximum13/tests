@@ -21,6 +21,7 @@ const initialState: AllTestsState = {
   loading: false,
   error: null,
   isReady: false,
+  isOpenModal: false,
 };
 
 const testsSlice = createSlice({
@@ -227,6 +228,10 @@ const testsSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+
+    toggleModal: (state) => {
+      state.isOpenModal = !state.isOpenModal;
+    },
   },
 });
 
@@ -332,6 +337,7 @@ export const {
   isLoading,
   isFailure,
   clearError,
+  toggleModal,
   redirectToHome,
 } = actions;
 

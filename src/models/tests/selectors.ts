@@ -6,3 +6,4 @@ export const isTest = (state: RootState) => state.tests.test;
 export const isLoading = (state: RootState) => state.tests.loading;
 export const isError = (state: RootState) => state.tests.error;
 export const isReady = (state: RootState) => state.tests.isReady;
+export const isOpenModal = (state: RootState) => state.tests.isOpenModal;

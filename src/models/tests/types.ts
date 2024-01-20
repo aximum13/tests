@@ -4,6 +4,7 @@ export type AllTestsState = {
   error?: string | null;
   loading?: boolean;
   isReady?: boolean;
+  isOpenModal?: boolean;
 };
 
 export type TestsState = {

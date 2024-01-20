@@ -91,7 +91,6 @@ const HomePage = () => {
 
   const handlePageChange = (selectedItem: { selected: number }) => {
     setCurrentPage(selectedItem.selected);
-    console.log(selectedItem.selected, selectedItem, currentPage);
   };
 
   useEffect(() => {

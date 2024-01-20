@@ -10,6 +10,8 @@ import { Button } from 'antd';
 import Checkbox from 'antd/es/checkbox/Checkbox';
 
 import styles from './Form.module.sass';
+import React, { useEffect } from 'react';
+import ResetForm from './ResetForm';
 
 interface Values {
   id: number;
@@ -20,6 +22,7 @@ interface Values {
 
 interface Props {
   question_type: string;
+  isOpenQuestion: boolean;
 }
 
 const FormEditAnswer: React.FC<Values & Props> = ({
@@ -28,6 +31,7 @@ const FormEditAnswer: React.FC<Values & Props> = ({
   is_right,
   position,
   question_type,
+  isOpenQuestion,
 }) => {
   const initialValues: Values = {
     id,
@@ -46,6 +50,11 @@ const FormEditAnswer: React.FC<Values & Props> = ({
         const answerEdit: AnswerState = values;
         dispatch(editAnswer(answerEdit));
         setSubmitting(false);
+      }}
+      onReset={(values: Values, { resetForm }: FormikHelpers<Values>) => {
+        if (!isOpenQuestion) {
+          resetForm();
+        }
       }}
     >
       {({ errors, touched, values }) => (
@@ -95,6 +104,7 @@ const FormEditAnswer: React.FC<Values & Props> = ({
           >
             Изменить
           </Button>
+          <ResetForm />
         </Form>
       )}
     </Formik>
