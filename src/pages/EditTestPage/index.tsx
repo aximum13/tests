@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
-import { deleteTest, getTest, redirectToHome } from 'models/tests';
+import { deleteTest, getTest, redirectToHome, toggleModal } from 'models/tests';
 import { isReady as ready, isTest, isLoading } from 'models/tests/selectors';
 
 import Select from 'antd/es/select';
@@ -45,9 +45,10 @@ const EditTestPage = () => {
       questionType === 'single' ||
       questionType === 'multiple' ||
       questionType === 'number'
-    )
+    ) {
       setModalAdd(!modalAdd);
-    else {
+      dispatch(toggleModal());
+    } else {
       setQuestionTypeError('Выберите тип вопроса');
     }
   };

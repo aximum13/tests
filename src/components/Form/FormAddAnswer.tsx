@@ -5,7 +5,7 @@ import { useAppDispatch } from 'hooks';
 import { answerValid } from 'utils/validation';
 
 import { Button } from 'antd';
-import { createAnswer } from 'models/tests';
+import { createAnswer, editQuestion } from 'models/tests';
 
 import styles from './Form.module.sass';
 import Checkbox from 'antd/es/checkbox/Checkbox';
@@ -13,13 +13,17 @@ import Checkbox from 'antd/es/checkbox/Checkbox';
 interface Props {
   idQuestion: number;
   question_type: string;
+  title: string;
   setShowFormAddAnswer: React.Dispatch<React.SetStateAction<boolean>>;
+  answer: number;
 }
 
 const FormAddAnswer: React.FC<Props> = ({
   idQuestion,
   question_type,
   setShowFormAddAnswer,
+  answer,
+  title,
 }) => {
   const initialValues = {
     text: '',
@@ -44,21 +48,31 @@ const FormAddAnswer: React.FC<Props> = ({
           is_right: boolean;
         }>
       ) => {
-        question_type !== 'number'
-          ? dispatch(
-              createAnswer({
-                text: values.text,
-                is_right: values.is_right,
-                idQuestion,
-              })
-            )
-          : dispatch(
-              createAnswer({
-                text: values.text,
-                is_right: true,
-                idQuestion,
-              })
-            );
+        if (question_type !== 'number') {
+          dispatch(
+            createAnswer({
+              text: values.text,
+              is_right: values.is_right,
+              idQuestion,
+            })
+          );
+        } else
+          dispatch(
+            createAnswer({
+              text: values.text,
+              is_right: true,
+              idQuestion,
+            })
+          );
+
+        dispatch(
+          editQuestion({
+            id: idQuestion,
+            answer: answer + 1,
+            title,
+            question_type,
+          })
+        );
 
         setShowFormAddAnswer(false);
         setSubmitting(false);

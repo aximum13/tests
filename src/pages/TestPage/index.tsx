@@ -9,6 +9,7 @@ import { clearAnswers, getQuestion, setAnswer } from 'models/playTests';
 import { checkAnswers } from 'utils/checkAnswers';
 
 import { Button } from 'antd';
+import Spin from 'components/Spin';
 import LinkToHome from 'components/LinkToHome';
 import Title from 'components/Title';
 import ModalCmp from 'components/Modal';
@@ -20,7 +21,6 @@ import {
 } from 'components/QuestionsPlay';
 
 import styles from './TestPage.module.sass';
-import Spin from 'components/Spin';
 
 const TestPage = () => {
   const [multipleAnswers, setMultipleAnswers] = useState<{

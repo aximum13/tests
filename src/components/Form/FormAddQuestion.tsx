@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useState } from 'react';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 
 import { useAppDispatch } from 'hooks';
@@ -6,6 +7,8 @@ import { questionTitleValid } from 'utils/validation';
 
 import { Button } from 'antd';
 import { createQuestion } from 'models/tests';
+
+import ResetForm from './ResetForm';
 
 import styles from './Form.module.sass';
 
@@ -33,6 +36,8 @@ const FormAddQuestion: React.FC<Props> = ({
     answer: 0,
     idTest,
   };
+
+  const [isSubmit, setIsSubmit] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -126,6 +131,7 @@ const FormAddQuestion: React.FC<Props> = ({
               Отправить
             </Button>
           </Form>
+          <ResetForm isSubmit={isSubmit} setIsSubmit={setIsSubmit} />
         </>
       )}
     </Formik>

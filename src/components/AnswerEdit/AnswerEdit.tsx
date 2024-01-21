@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { useAppDispatch } from 'hooks';
-import { deleteAnswer } from 'models/tests';
+import { deleteAnswer, editQuestion } from 'models/tests';
 
 import { Button } from 'antd';
 import CloseOutlined from '@ant-design/icons/lib/icons/CloseOutlined';
@@ -9,16 +9,16 @@ import { FormEditAnswer } from 'components/Form';
 import ModalChoice from 'components/ModalChoice';
 
 import styles from './AnswerEdit.module.sass';
-import { useFormikContext } from 'formik';
 
 interface Props {
   id: number;
   text: string;
   is_right: boolean;
   index: number;
+  answer: number;
   idQuestion: number;
   question_type: string;
-  isOpenQuestion: boolean;
+  title: string;
 }
 
 const AnswerEdit: React.FC<Props> = ({
@@ -28,7 +28,8 @@ const AnswerEdit: React.FC<Props> = ({
   index,
   idQuestion,
   question_type,
-  isOpenQuestion,
+  title,
+  answer,
 }) => {
   const dispatch = useAppDispatch();
 
@@ -38,11 +39,19 @@ const AnswerEdit: React.FC<Props> = ({
     setIsModalOpen(!isModalOpen);
   };
 
-  const handleDeleteAnswer = (isIdQuestion: number, id: number) => {
+  const handleDeleteAnswer = (id: number) => {
     dispatch(
       deleteAnswer({
-        idQuestion: isIdQuestion,
+        idQuestion,
         idAnswer: id,
+      })
+    );
+    dispatch(
+      editQuestion({
+        id: idQuestion,
+        answer: answer - 1,
+        title,
+        question_type,
       })
     );
   };
@@ -62,14 +71,13 @@ const AnswerEdit: React.FC<Props> = ({
         text={text}
         is_right={is_right}
         position={index}
-        isOpenQuestion={isOpenQuestion}
       />
       <ModalChoice
         width={560}
         title={'Удалить ответ?'}
         isOpen={isModalOpen}
         handleCancel={handleModalIsOpen}
-        handleOk={() => handleDeleteAnswer(idQuestion, id)}
+        handleOk={() => handleDeleteAnswer(id)}
       />
     </div>
   );

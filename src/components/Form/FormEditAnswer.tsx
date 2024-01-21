@@ -10,7 +10,7 @@ import { Button } from 'antd';
 import Checkbox from 'antd/es/checkbox/Checkbox';
 
 import styles from './Form.module.sass';
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import ResetForm from './ResetForm';
 
 interface Values {
@@ -22,7 +22,6 @@ interface Values {
 
 interface Props {
   question_type: string;
-  isOpenQuestion: boolean;
 }
 
 const FormEditAnswer: React.FC<Values & Props> = ({
@@ -31,31 +30,36 @@ const FormEditAnswer: React.FC<Values & Props> = ({
   is_right,
   position,
   question_type,
-  isOpenQuestion,
 }) => {
-  const initialValues: Values = {
+  const [initialValues, setInitialValues] = useState<Values>({
     id,
-    text,
+    text: text.trim(),
     is_right,
     position,
-  };
+  });
+
+  const [isSubmit, setIsSubmit] = useState(false);
 
   const dispatch = useAppDispatch();
+
+  const handleSubmit = (
+    values: Values,
+    { setSubmitting }: FormikHelpers<Values>
+  ) => {
+    const answerEdit: AnswerState = values;
+
+    dispatch(editAnswer(answerEdit));
+    setInitialValues(values);
+    setSubmitting(true);
+    setIsSubmit(true);
+  };
 
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={answerValid(question_type)}
-      onSubmit={(values: Values, { setSubmitting }: FormikHelpers<Values>) => {
-        const answerEdit: AnswerState = values;
-        dispatch(editAnswer(answerEdit));
-        setSubmitting(false);
-      }}
-      onReset={(values: Values, { resetForm }: FormikHelpers<Values>) => {
-        if (!isOpenQuestion) {
-          resetForm();
-        }
-      }}
+      onSubmit={handleSubmit}
+      enableReinitialize={true}
     >
       {({ errors, touched, values }) => (
         <Form className={classNames(styles.FormEditAnswer)}>
@@ -104,7 +108,7 @@ const FormEditAnswer: React.FC<Values & Props> = ({
           >
             Изменить
           </Button>
-          <ResetForm />
+          <ResetForm isSubmit={isSubmit} setIsSubmit={setIsSubmit} />
         </Form>
       )}
     </Formik>

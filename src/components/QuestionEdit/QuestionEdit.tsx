@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
-import { deleteQuestion, editQuestion, toggleModal } from 'models/tests';
+import { deleteQuestion, toggleModal } from 'models/tests';
 import { isTest } from 'models/tests/selectors';
 import { useAppDispatch, useAppSelector } from 'hooks';
 
@@ -38,27 +38,10 @@ const QuestionEdit: React.FC<Props> = ({
   const [errorQuestion, setErrorQuestion] = useState('');
 
   const isQuestions = useAppSelector(isTest);
+
   const isQuestion = isQuestions?.questions.find(
     (question) => question.id === id
   );
-  const answerCount = isQuestion?.answers?.length || 0;
-
-  const [prevAnswerCount, setPrevAnswerCount] = useState(answerCount);
-
-  useEffect(() => {
-    if (prevAnswerCount !== answerCount) {
-      dispatch(editQuestion({ id, title, question_type, answer: answerCount }));
-      setPrevAnswerCount(answerCount);
-    }
-  }, [
-    answer,
-    answerCount,
-    dispatch,
-    id,
-    prevAnswerCount,
-    question_type,
-    title,
-  ]);
 
   const countIsRight =
     isQuestion?.answers?.reduce(
@@ -66,23 +49,7 @@ const QuestionEdit: React.FC<Props> = ({
       0
     ) || 0;
 
-  useEffect(() => {
-    questionValid(question_type, answer, countIsRight, setErrorText);
-
-    const validation = questionValid(
-      question_type,
-      answer,
-      countIsRight,
-      setErrorQuestion
-    );
-    if (!validation) {
-      setErrorQuestion('Ошибка, исправьте вопрос');
-    } else {
-      setErrorQuestion('');
-    }
-  }, [question_type, answer, countIsRight, setErrorQuestion]);
-
-  const handleModalIsOpen = () => {
+  const handleModalIsOpen = (id: number) => {
     setIsModalOpen(!isModalOpen);
     dispatch(toggleModal());
   };
@@ -111,6 +78,22 @@ const QuestionEdit: React.FC<Props> = ({
     }
   };
 
+  useEffect(() => {
+    questionValid(question_type, answer, countIsRight, setErrorText);
+
+    const validation = questionValid(
+      question_type,
+      answer,
+      countIsRight,
+      setErrorQuestion
+    );
+    if (!validation) {
+      setErrorQuestion('Ошибка, исправьте вопрос');
+    } else {
+      setErrorQuestion('');
+    }
+  }, [answer, countIsRight, question_type, setErrorQuestion]);
+
   return (
     <>
       <div
@@ -124,7 +107,7 @@ const QuestionEdit: React.FC<Props> = ({
           type="text"
           shape="circle"
           icon={<EditOutlined />}
-          onClick={handleModalIsOpen}
+          onClick={() => handleModalIsOpen(id)}
         ></Button>
         <div>{title}</div>
         {errorQuestion && errorText && (
@@ -146,12 +129,11 @@ const QuestionEdit: React.FC<Props> = ({
             <FormEditQuestion
               id={id}
               title={title}
-              answer={answerCount}
+              answer={answer}
               countIsRight={countIsRight}
               question_type={question_type}
               setErrorText={setErrorText}
               errorText={errorText}
-              isOpen={isModalOpen}
             />
           }
           isOpen={isModalOpen}

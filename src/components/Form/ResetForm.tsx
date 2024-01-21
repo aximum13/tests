@@ -3,18 +3,25 @@ import { useAppSelector } from 'hooks';
 import { isOpenModal } from 'models/tests/selectors';
 import { useEffect } from 'react';
 
-const ResetForm: React.FC = () => {
+interface Props {
+  isSubmit: boolean;
+  setIsSubmit: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const ResetForm: React.FC<Props> = ({ isSubmit, setIsSubmit }) => {
   const { resetForm } = useFormikContext();
 
   const isOpen = useAppSelector(isOpenModal);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!isOpen && !isSubmit) {
       setTimeout(() => {
         resetForm();
       }, 100);
+    } else if (!isOpen && isSubmit) {
+      setIsSubmit(false);
     }
-  }, [resetForm, isOpen]);
+  }, [resetForm, isOpen, isSubmit, setIsSubmit]);
   return null;
 };
 export default ResetForm;

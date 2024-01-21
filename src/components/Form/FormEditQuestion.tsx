@@ -34,7 +34,6 @@ interface Props {
   countIsRight: number;
   errorText: string;
   setErrorText: React.Dispatch<React.SetStateAction<string>>;
-  isOpen: boolean;
 }
 
 const FormEditQuestion: React.FC<Values & Props> = ({
@@ -45,14 +44,14 @@ const FormEditQuestion: React.FC<Values & Props> = ({
   countIsRight,
   setErrorText,
   errorText,
-  isOpen,
 }) => {
-  const initialValues: Values = {
+  const [initialValues, setInitialValues] = useState<Values>({
     id,
     title,
-  };
+  });
 
   const [showFormAddAnswer, setShowFormAddAnswer] = useState(false);
+  const [isSubmit, setIsSubmit] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -84,13 +83,16 @@ const FormEditQuestion: React.FC<Values & Props> = ({
       <Formik
         initialValues={initialValues}
         validationSchema={questionTitleValid}
+        enableReinitialize={true}
         onSubmit={(
           values: Values,
           { setSubmitting }: FormikHelpers<Values>
         ) => {
           const { id, title }: Partial<QuestState> = values;
           dispatch(editQuestion({ id, title, question_type, answer }));
+          setInitialValues(values);
           setSubmitting(false);
+          setIsSubmit(true);
         }}
       >
         {({ errors, touched }) => (
@@ -159,7 +161,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
             >
               Сохранить
             </Button>
-            <ResetForm />
+            <ResetForm isSubmit={isSubmit} setIsSubmit={setIsSubmit} />
           </Form>
         )}
       </Formik>
@@ -195,7 +197,8 @@ const FormEditQuestion: React.FC<Values & Props> = ({
                                 {...provided.dragHandleProps}
                               >
                                 <AnswerEdit
-                                  isOpenQuestion={isOpen}
+                                  title={title}
+                                  answer={answer}
                                   id={id}
                                   text={text}
                                   is_right={is_right}
@@ -221,7 +224,8 @@ const FormEditQuestion: React.FC<Values & Props> = ({
             question.answers &&
             question.answers.map(({ text, is_right, id }, index: number) => (
               <AnswerEdit
-                isOpenQuestion={isOpen}
+                title={title}
+                answer={answer}
                 id={id}
                 text={text}
                 is_right={is_right}
@@ -241,8 +245,10 @@ const FormEditQuestion: React.FC<Values & Props> = ({
           <Button className={styles.BtnAddAnswer} onClick={handleShowForm}>
             Добавить ответ
           </Button>
-          {showFormAddAnswer && (
+          {showFormAddAnswer && question && question.answers && (
             <FormAddAnswer
+              title={title}
+              answer={question.answers.length}
               idQuestion={id}
               question_type={question_type}
               setShowFormAddAnswer={setShowFormAddAnswer}
