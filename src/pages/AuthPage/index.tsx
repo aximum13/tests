@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 
 import { useAppSelector } from 'hooks';
-import { isError } from 'models/users/selectors';
+import { error as errorText } from 'models/users/selectors';
 
 import Title from 'components/Title';
 import { FormSignUp, FormSignIn } from 'components/Form';
@@ -13,7 +13,7 @@ import styles from './AuthPage.module.sass';
 const AuthPage = () => {
   const [signUp, setSignUp] = useState(false);
 
-  const error = useAppSelector(isError);
+  const error = useAppSelector(errorText);
 
   useEffect(() => {
     error && message.error(error, 4);

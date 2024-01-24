@@ -12,7 +12,7 @@ interface ModalTypes {
   width?: number;
 }
 
-const ModalCmp: React.FC<ModalTypes> = ({
+const ModalCmp = ({
   content,
   isOpen,
   handleOk,
@@ -21,7 +21,7 @@ const ModalCmp: React.FC<ModalTypes> = ({
   title,
   footer,
   width,
-}) => {
+}: ModalTypes) => {
   return (
     <Modal
       width={width}

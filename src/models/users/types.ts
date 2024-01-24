@@ -1,5 +1,5 @@
 export type UsersState = {
-  user?: UserState | null;
+  user: UserState | null;
   error?: string | null;
   loading?: boolean;
 };

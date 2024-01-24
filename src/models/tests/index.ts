@@ -3,7 +3,7 @@ import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   AllTestsState,
   AnswerState,
-  QuestState,
+  QuestionState,
   SearchState,
   TestsState,
   TestState,
@@ -89,18 +89,18 @@ const testsSlice = createSlice({
 
     // Новый вопрос
 
-    addQuestionSuccess: (state, action: PayloadAction<QuestState>) => {
+    addQuestionSuccess: (state, action: PayloadAction<QuestionState>) => {
       state.loading = false;
       state.test?.questions.push(action.payload);
     },
 
     // Редактирование вопроса
 
-    editQuestionSuccess: (state, action: PayloadAction<QuestState>) => {
+    editQuestionSuccess: (state, action: PayloadAction<QuestionState>) => {
       const { id, title, question_type, answer } = action.payload;
       if (state.test) {
         state.test.questions = state.test.questions.map(
-          (question: QuestState) =>
+          (question: QuestionState) =>
             question.id === id
               ? { ...question, title, question_type, answer }
               : question
@@ -251,9 +251,12 @@ export const getTest = createAction(GET_TEST, (payload: number) => ({
 }));
 
 export const EDIT_TEST = 'tests/editTest';
-export const editTest = createAction(EDIT_TEST, (payload: TestState) => ({
-  payload,
-}));
+export const editTest = createAction(
+  EDIT_TEST,
+  (payload: { title: string; id: number }) => ({
+    payload,
+  })
+);
 
 export const DELETE_TEST = 'tests/deleteTest';
 export const deleteTest = createAction(DELETE_TEST, (payload: number) => ({
@@ -276,7 +279,7 @@ export const createQuestion = createAction(
 export const EDIT_QUESTION = 'tests/editQuestion';
 export const editQuestion = createAction(
   EDIT_QUESTION,
-  (payload: Partial<QuestState>) => ({
+  (payload: Partial<QuestionState>) => ({
     payload,
   })
 );

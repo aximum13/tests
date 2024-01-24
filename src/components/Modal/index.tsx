@@ -1,3 +1,3 @@
-import ModalCmp from './Modal';
+import Modal from './Modal';
 
-export default ModalCmp;
+export default Modal;

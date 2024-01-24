@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import classNames from 'classnames';
 import { Outlet } from 'react-router-dom';
 
 import styles from './Container.module.sass';
-const Container: React.FC = () => {
+const Container = () => {
   return (
     <div className={classNames(styles.Container)}>
       <Outlet />
@@ -10,4 +11,4 @@ const Container: React.FC = () => {
   );
 };
 
-export default Container;
+export default memo(Container);

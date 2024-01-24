@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 
 import styles from './LinkToHome.module.sass';
 
-const LinkToHome: React.FC = () => {
+const LinkToHome = () => {
   return (
     <Link className={styles.LinkToHome} to={'/'}>
       Вернуться на главную
@@ -10,4 +11,4 @@ const LinkToHome: React.FC = () => {
   );
 };
 
-export default LinkToHome;
+export default memo(LinkToHome);

@@ -1,6 +1,6 @@
 import { Spin } from 'antd';
 
-const Loader: React.FC = () => {
+const Loader = () => {
   return <Spin fullscreen />;
 };
 

@@ -21,7 +21,7 @@ interface Props {
   title: string;
 }
 
-const AnswerEdit: React.FC<Props> = ({
+const AnswerEdit = ({
   id,
   text,
   is_right,
@@ -30,7 +30,7 @@ const AnswerEdit: React.FC<Props> = ({
   question_type,
   title,
   answer,
-}) => {
+}: Props) => {
   const dispatch = useAppDispatch();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,7 +74,7 @@ const AnswerEdit: React.FC<Props> = ({
       />
       <ModalChoice
         width={560}
-        title={'Удалить ответ?'}
+        title="Удалить ответ?"
         isOpen={isModalOpen}
         handleCancel={handleModalIsOpen}
         handleOk={() => handleDeleteAnswer(id)}

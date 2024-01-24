@@ -3,35 +3,29 @@ import classNames from 'classnames';
 import { useAppDispatch } from 'hooks';
 import { testTitleValid } from 'utils/validation';
 import { editTest } from 'models/tests';
-import { TestState } from 'models/tests/types';
 
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Button } from 'antd';
 
 import styles from './Form.module.sass';
 
-const FormEditTestTitle: React.FC<TestState> = ({
-  title,
-  created_at,
-  id,
-  questions,
-}) => {
+interface Props {
+  id: number;
+  title: string;
+}
+
+const FormEditTestTitle = ({ title, id }: Props) => {
   const dispatch = useAppDispatch();
   const initialValues = {
-    title,
-    created_at,
     id,
-    questions,
+    title,
   };
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={testTitleValid}
-      onSubmit={(
-        values: TestState,
-        { setSubmitting }: FormikHelpers<TestState>
-      ) => {
-        const test: TestState = values;
+      onSubmit={(values: Props, { setSubmitting }: FormikHelpers<Props>) => {
+        const test: Props = values;
         dispatch(editTest(test));
         setSubmitting(false);
       }}

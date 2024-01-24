@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { deleteQuestion, toggleModal } from 'models/tests';
-import { isTest } from 'models/tests/selectors';
+import { test } from 'models/tests/selectors';
 import { useAppDispatch, useAppSelector } from 'hooks';
 
 import { questionValid } from 'utils/validation';
@@ -11,7 +11,7 @@ import { Button } from 'antd';
 import CloseOutlined from '@ant-design/icons/lib/icons/CloseOutlined';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
 
-import ModalCmp from 'components/Modal/Modal';
+import Modal from 'components/Modal/Modal';
 import ModalChoice from 'components/ModalChoice';
 import { FormEditQuestion } from 'components/Form';
 
@@ -24,12 +24,7 @@ interface Props {
   question_type: string;
 }
 
-const QuestionEdit: React.FC<Props> = ({
-  id,
-  title,
-  answer,
-  question_type,
-}) => {
+const QuestionEdit = ({ id, title, answer, question_type }: Props) => {
   const dispatch = useAppDispatch();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,7 +32,7 @@ const QuestionEdit: React.FC<Props> = ({
   const [errorText, setErrorText] = useState('');
   const [errorQuestion, setErrorQuestion] = useState('');
 
-  const isQuestions = useAppSelector(isTest);
+  const isQuestions = useAppSelector(test);
 
   const isQuestion = isQuestions?.questions.find(
     (question) => question.id === id
@@ -49,7 +44,7 @@ const QuestionEdit: React.FC<Props> = ({
       0
     ) || 0;
 
-  const handleModalIsOpen = (id: number) => {
+  const handleModalIsOpen = () => {
     setIsModalOpen(!isModalOpen);
     dispatch(toggleModal());
   };
@@ -103,18 +98,18 @@ const QuestionEdit: React.FC<Props> = ({
         })}
       >
         <Button
-          size={'large'}
+          size="large"
           type="text"
           shape="circle"
           icon={<EditOutlined />}
-          onClick={() => handleModalIsOpen(id)}
+          onClick={handleModalIsOpen}
         ></Button>
         <div>{title}</div>
         {errorQuestion && errorText && (
           <p className={styles.ErrorText}>{errorQuestion}</p>
         )}
         <Button
-          size={'large'}
+          size="large"
           type="text"
           danger
           shape="circle"
@@ -122,7 +117,7 @@ const QuestionEdit: React.FC<Props> = ({
           className={styles.ButtonDelete}
           onClick={handleModalDelete}
         ></Button>
-        <ModalCmp
+        <Modal
           width={700}
           title={`Редактировать вопрос - ${titleModal(question_type)}`}
           content={
@@ -142,7 +137,7 @@ const QuestionEdit: React.FC<Props> = ({
         />
         <ModalChoice
           width={560}
-          title={'Удалить вопрос?'}
+          title="Удалить вопрос?"
           isOpen={modalDelete}
           handleCancel={handleModalDelete}
           handleOk={() => handleDeleteQuestion(id)}

@@ -5,7 +5,7 @@ import { editAnswer } from 'models/tests';
 import { answerValid } from 'utils/validation';
 import { AnswerState } from 'models/tests/types';
 
-import { Field, Form, Formik, FormikHelpers } from 'formik';
+import { Field, Form, Formik, FormikHelpers, useFormik } from 'formik';
 import { Button } from 'antd';
 import Checkbox from 'antd/es/checkbox/Checkbox';
 
@@ -24,13 +24,13 @@ interface Props {
   question_type: string;
 }
 
-const FormEditAnswer: React.FC<Values & Props> = ({
+const FormEditAnswer = ({
   id,
   text,
   is_right,
   position,
   question_type,
-}) => {
+}: Values & Props) => {
   const [initialValues, setInitialValues] = useState<Values>({
     id,
     text: text.trim(),
@@ -63,43 +63,25 @@ const FormEditAnswer: React.FC<Values & Props> = ({
     >
       {({ errors, touched, values }) => (
         <Form className={classNames(styles.FormEditAnswer)}>
-          {question_type !== 'number' ? (
-            <>
-              <label className={classNames(styles.LabelAddAnswer)}>
-                <Field
-                  type="text"
-                  autoComplete="off"
-                  name="text"
-                  placeholder="Введите ответ"
-                  className={styles.InputAddAnswer}
-                />
-                {errors.text && touched.text ? (
-                  <div className={classNames(styles.Error)}>{errors.text}</div>
-                ) : null}
-              </label>
-              <label className={classNames(styles.LabelEditIsRight)}>
-                {values.is_right ? 'Верно' : 'Неверно'}
+          <label className={classNames(styles.LabelAddAnswer)}>
+            <Field
+              type="text"
+              autoComplete="off"
+              name="text"
+              placeholder="Введите ответ"
+              className={styles.InputAddAnswer}
+            />
+            {errors.text && touched.text ? (
+              <div className={classNames(styles.Error)}>{errors.text}</div>
+            ) : null}
+          </label>
+          {question_type !== 'number' && (
+            <label className={classNames(styles.LabelEditIsRight)}>
+              {values.is_right ? 'Верно' : 'Неверно'}
 
-                <Field type="checkbox" name="is_right" as={Checkbox} />
-              </label>
-            </>
-          ) : (
-            <>
-              <label className={classNames(styles.LabelAddAnswer)}>
-                <Field
-                  type="text"
-                  autoComplete="off"
-                  name="text"
-                  placeholder="Введите ответ"
-                  className={styles.InputAddAnswer}
-                />
-                {errors.text && touched.text ? (
-                  <div className={classNames(styles.Error)}>{errors.text}</div>
-                ) : null}
-              </label>
-            </>
+              <Field type="checkbox" name="is_right" as={Checkbox} />
+            </label>
           )}
-
           <Button
             className={classNames(styles.ButtonEdit)}
             type="primary"

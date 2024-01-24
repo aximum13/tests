@@ -1,16 +1,20 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { deleteTest, getTest, redirectToHome, toggleModal } from 'models/tests';
-import { isReady as ready, isTest, isLoading } from 'models/tests/selectors';
+import {
+  isReady as ready,
+  test as editTest,
+  isLoading as load,
+} from 'models/tests/selectors';
 
 import Select from 'antd/es/select';
 import { Button, message } from 'antd';
 
 import { FormEditTestTitle } from 'components/Form';
 import { FormAddQuestion } from 'components/Form';
-import ModalCmp from 'components/Modal/Modal';
+import Modal from 'components/Modal/Modal';
 import Spin from 'components/Spin';
 import QuestionEdit from 'components/QuestionEdit';
 import LinkToHome from 'components/LinkToHome';
@@ -19,6 +23,21 @@ import ModalChoice from 'components/ModalChoice';
 
 import styles from './EditTestPage.module.sass';
 
+const options = [
+  {
+    value: 'single',
+    label: 'Один из списка',
+  },
+  {
+    value: 'multiple',
+    label: 'Несколько из списка',
+  },
+  {
+    value: 'number',
+    label: 'Численный ответ',
+  },
+];
+
 const EditTestPage = () => {
   const [questionType, setQuestionType] = useState('');
   const [questionTypeError, setQuestionTypeError] = useState('');
@@ -26,12 +45,12 @@ const EditTestPage = () => {
   const [modalAdd, setModalAdd] = useState(false);
   const [modalDelete, setModalDelete] = useState(false);
 
-  const test = useAppSelector(isTest);
-  const loading = useAppSelector(isLoading);
+  const test = useAppSelector(editTest);
+  const isLoad = useAppSelector(load);
   const isReady = useAppSelector(ready);
 
-  const { id } = useParams();
-  const idTest = id ? parseInt(id) : 0;
+  const { id = '' } = useParams();
+  const idTest = +id;
 
   const { title, created_at, questions } = test
     ? test
@@ -41,11 +60,7 @@ const EditTestPage = () => {
   const navigate = useNavigate();
 
   const handleModalAddQuestion = () => {
-    if (
-      questionType === 'single' ||
-      questionType === 'multiple' ||
-      questionType === 'number'
-    ) {
+    if (questionType) {
       setModalAdd(!modalAdd);
       dispatch(toggleModal());
     } else {
@@ -57,9 +72,12 @@ const EditTestPage = () => {
     setModalDelete(!modalDelete);
   };
 
-  const handleChangeTypeAnswer = (value: string) => {
-    setQuestionType(value);
-  };
+  const handleChangeTypeAnswer = useCallback(
+    (value: string) => {
+      setQuestionType(value);
+    },
+    [setQuestionType]
+  );
 
   const handleDeleteTest = () => {
     test && dispatch(deleteTest(test.id));
@@ -89,17 +107,17 @@ const EditTestPage = () => {
 
   return (
     <>
-      {loading && <Spin />}
-      {!loading && test ? (
+      {isLoad && <Spin />}
+      {!isLoad && test ? (
         <>
           <LinkToHome />
-          <Title className={styles.TitlePage} title={'Редактировать тест'} />
+          <Title className={styles.TitlePage} title="Редактировать тест" />
           <div className={styles.EditPage}>
             <FormEditTestTitle
               id={idTest}
-              questions={questions}
+              // questions={questions}
               title={title}
-              created_at={created_at}
+              // created_at={created_at}
             />
             {questions && questions.length > 0 && (
               <>
@@ -123,20 +141,7 @@ const EditTestPage = () => {
                   className={styles.BtnTypeQuestion}
                   placeholder="Тип вопроса"
                   onChange={handleChangeTypeAnswer}
-                  options={[
-                    {
-                      value: 'single',
-                      label: 'Один из списка',
-                    },
-                    {
-                      value: 'multiple',
-                      label: 'Несколько из списка',
-                    },
-                    {
-                      value: 'number',
-                      label: 'Численный ответ',
-                    },
-                  ]}
+                  options={options}
                 ></Select>
               </div>
               <Button onClick={handleModalAddQuestion}>Добавить вопрос</Button>
@@ -148,9 +153,9 @@ const EditTestPage = () => {
               </Button>
             </div>
           </div>
-          <ModalCmp
+          <Modal
             width={600}
-            title={'Добавить вопрос'}
+            title="Добавить вопрос"
             content={
               <FormAddQuestion
                 question_type={questionType}
@@ -164,7 +169,7 @@ const EditTestPage = () => {
           />
           <ModalChoice
             width={560}
-            title={'Удалить тест?'}
+            title="Удалить тест?"
             isOpen={modalDelete}
             handleCancel={handleModalDelete}
             handleOk={handleDeleteTest}

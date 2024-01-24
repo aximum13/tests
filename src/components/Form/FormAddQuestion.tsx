@@ -25,11 +25,7 @@ interface Props {
   setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const FormAddQuestion: React.FC<Props> = ({
-  question_type,
-  idTest,
-  setIsOpenModal,
-}) => {
+const FormAddQuestion = ({ question_type, idTest, setIsOpenModal }: Props) => {
   const initialValues: QuestionState = {
     title: '',
     question_type,
@@ -65,62 +61,21 @@ const FormAddQuestion: React.FC<Props> = ({
       {({ errors, touched }) => (
         <>
           <Form className={classNames(styles.FormQuestion)}>
-            {question_type === 'single' && (
-              <>
-                <label className={classNames(styles.LabelQuestion)}>
-                  <Field
-                    type="text"
-                    autoComplete="off"
-                    className={classNames(styles.FieldEdit, styles.Field)}
-                    name="title"
-                    placeholder="Введите вопрос"
-                  />
+            <>
+              <label className={classNames(styles.LabelQuestion)}>
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  className={classNames(styles.FieldEdit, styles.Field)}
+                  name="title"
+                  placeholder="Введите вопрос"
+                />
 
-                  {errors.title && touched.title ? (
-                    <div className={classNames(styles.Error)}>
-                      {errors.title}
-                    </div>
-                  ) : null}
-                </label>
-              </>
-            )}
-            {question_type === 'multiple' && (
-              <>
-                <label className={classNames(styles.LabelQuestion)}>
-                  <Field
-                    type="text"
-                    autoComplete="off"
-                    className={classNames(styles.FieldEdit, styles.Field)}
-                    name="title"
-                    placeholder="Введите вопрос"
-                  />
-                  {errors.title && touched.title ? (
-                    <div className={classNames(styles.Error)}>
-                      {errors.title}
-                    </div>
-                  ) : null}
-                </label>
-              </>
-            )}
-
-            {question_type === 'number' && (
-              <>
-                <label className={classNames(styles.LabelQuestion)}>
-                  <Field
-                    type="text"
-                    autoComplete="off"
-                    className={classNames(styles.FieldEdit, styles.Field)}
-                    name="title"
-                    placeholder="Введите вопрос"
-                  />
-                  {errors.title && touched.title ? (
-                    <div className={classNames(styles.Error)}>
-                      {errors.title}
-                    </div>
-                  ) : null}
-                </label>
-              </>
-            )}
+                {errors.title && touched.title ? (
+                  <div className={classNames(styles.Error)}>{errors.title}</div>
+                ) : null}
+              </label>
+            </>
 
             <Button
               className={classNames(styles.ButtonEdit)}

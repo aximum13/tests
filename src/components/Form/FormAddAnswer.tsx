@@ -18,13 +18,13 @@ interface Props {
   answer: number;
 }
 
-const FormAddAnswer: React.FC<Props> = ({
+const FormAddAnswer = ({
   idQuestion,
   question_type,
   setShowFormAddAnswer,
   answer,
   title,
-}) => {
+}: Props) => {
   const initialValues = {
     text: '',
     is_right: false,

@@ -1,41 +1,52 @@
+import { useCallback, useEffect, useState } from 'react';
 import styles from './QuestionPlay.module.sass';
 
 interface Props {
-  numberAnswers: {
-    [key: number]: number;
-  };
   questionId: number;
-  handleNumberChange: (value: number, id: number) => void;
-  handleKeyDownNumber: (
-    event: React.KeyboardEvent<HTMLInputElement>,
-    id: number,
-    numberAnswer: number
-  ) => void;
-
+  retryTest: boolean;
   handleSingleAnswerChange: (id: number, value: number) => void;
+  valueAnswerNumber: number;
 }
 
-const QuestionNumber: React.FC<Props> = ({
-  numberAnswers,
+const QuestionNumber = ({
   questionId,
-  handleNumberChange,
-  handleKeyDownNumber,
+  retryTest,
   handleSingleAnswerChange,
-}) => {
+  valueAnswerNumber,
+}: Props) => {
+  const [value, setValue] = useState(valueAnswerNumber.toString());
+
+  useEffect(() => {
+    !retryTest && setValue('');
+  }, [retryTest]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    handleSingleAnswerChange(questionId, +value);
+  }, [handleSingleAnswerChange, questionId, value]);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        handleSingleAnswerChange(questionId, +value);
+      }
+    },
+    [handleSingleAnswerChange, questionId, value]
+  );
+
   return (
     <>
       <input
         type="text"
         className={styles.NumberInput}
-        value={numberAnswers[questionId] || ''}
+        value={value}
         placeholder="Введите число"
-        onChange={(e) => handleNumberChange(+e.target.value, questionId)}
-        onKeyDown={(e) =>
-          handleKeyDownNumber(e, questionId, numberAnswers[questionId])
-        }
-        onBlur={() =>
-          handleSingleAnswerChange(questionId, numberAnswers[questionId])
-        }
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
       />
     </>
   );

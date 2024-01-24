@@ -3,36 +3,30 @@ import classNames from 'classnames';
 import { AnswerState } from 'models/tests/types';
 
 import styles from './QuestionPlay.module.sass';
+import { useCallback } from 'react';
 
 interface Props {
   questionId: number;
-  multipleAnswers: {
-    [key: number]: {
-      id: number;
-      value: number;
-    }[];
-  };
-  handleMultipleAnswerChange: (
-    id: number,
-    indexAnswer: number,
-
-    multipleAnswers: {
-      id: number;
-      value: number;
-    }[]
-  ) => void;
-
   indexAnswer: number;
+  isChecked: boolean;
   answer: AnswerState;
+  handleMultipleAnswerChange: (id: number, indexAnswer: number) => void;
 }
 
-const QuestionMultiple: React.FC<Props> = ({
+const QuestionMultiple = ({
   indexAnswer,
   answer,
-  multipleAnswers,
+
   questionId,
   handleMultipleAnswerChange,
-}) => {
+  isChecked,
+}: Props) => {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      handleMultipleAnswerChange(questionId, +e.target.value);
+    },
+    [handleMultipleAnswerChange, questionId]
+  );
   return (
     <>
       <div key={indexAnswer}>
@@ -44,18 +38,8 @@ const QuestionMultiple: React.FC<Props> = ({
             )}
             type="checkbox"
             value={indexAnswer}
-            checked={(multipleAnswers[questionId] || []).some(
-              (userAnswer) =>
-                userAnswer.id === questionId && userAnswer.value === indexAnswer
-            )}
-            onChange={(e) =>
-              handleMultipleAnswerChange(
-                questionId,
-                +e.target.value,
-
-                multipleAnswers[questionId]
-              )
-            }
+            checked={isChecked}
+            onChange={handleChange}
           />
           {
             <p>

@@ -1,3 +1,3 @@
-import Spin from '../Spin/Spin';
+import Spin from './Spin';
 
 export default Spin;

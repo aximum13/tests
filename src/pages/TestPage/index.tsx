@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
 import { getTest } from 'models/tests';
-import { isTest } from 'models/tests/selectors';
-import { isQuestionId, isUserAnswers } from 'models/playTests/selectors';
-import { clearAnswers, getQuestion, setAnswer } from 'models/playTests';
+import { test as testPlay } from 'models/tests/selectors';
 import { checkAnswers } from 'utils/checkAnswers';
 
 import { Button } from 'antd';
 import Spin from 'components/Spin';
 import LinkToHome from 'components/LinkToHome';
 import Title from 'components/Title';
-import ModalCmp from 'components/Modal';
+import Modal from 'components/Modal';
 
 import {
   QuestionMultiple,
@@ -21,122 +19,128 @@ import {
 } from 'components/QuestionsPlay';
 
 import styles from './TestPage.module.sass';
+import { UserAnswersType } from 'models/tests/types';
 
 const TestPage = () => {
-  const [multipleAnswers, setMultipleAnswers] = useState<{
-    [key: number]: { id: number; value: number }[];
-  }>({});
-
-  const [numberAnswers, setNumberAnswers] = useState<{
-    [key: number]: number;
-  }>({});
+  const [userSelectedAnswers, setUserSelectedAnswers] = useState<
+    UserAnswersType[]
+  >([]);
 
   const [userRightAnswers, setUserRightAnswers] = useState(0);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const test = useAppSelector(isTest);
+  const test = useAppSelector(testPlay);
 
-  const userSelectedAnswers = useAppSelector(isUserAnswers);
-  const questionId = useAppSelector(isQuestionId);
+  const { id = '' } = useParams();
+  const idTest = +id;
 
-  const { id } = useParams();
-  const idTest = id ? parseInt(id) : 0;
   const { title, questions } = test ? test : { title: '', questions: [] };
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleSingleAnswerChange = (id: number, value: number) => {
-    dispatch(setAnswer({ questionId: id, answer: value }));
-    id !== questionId && dispatch(getQuestion(id));
-  };
-
-  const handleMultipleAnswerChange = (
-    id: number,
-    indexAnswer: number,
-
-    multipleAnswers: {
-      id: number;
-      value: number;
-    }[]
-  ) => {
-    setMultipleAnswers((prevAnswers) => {
-      const updatedAnswers = prevAnswers[id] || [];
-      const isChecked = updatedAnswers.some(
-        (answer) => answer.value === indexAnswer
+  const handleSingleAnswerChange = useCallback((id: number, value: number) => {
+    setUserSelectedAnswers((prevAnswers) => {
+      const isQuestionChecked = prevAnswers.some(
+        (answer) => answer.questionId === id
       );
 
-      if (isChecked) {
-        const filteredAnswers = updatedAnswers.filter(
-          (answer) => answer.value !== indexAnswer
+      if (isQuestionChecked) {
+        return prevAnswers.map((answer) =>
+          answer.questionId === id ? { ...answer, answer: value } : answer
         );
-        return {
-          ...prevAnswers,
-          [id]: filteredAnswers,
-        };
       } else {
-        return {
-          ...prevAnswers,
-          [id]: [...updatedAnswers, { id: id, value: indexAnswer }],
-        };
+        return [...prevAnswers, { questionId: id, answer: value }];
       }
     });
+  }, []);
 
-    if (questionId !== id) {
-      dispatch(getQuestion(id));
-    }
+  const isCheckedSingle = useCallback(
+    (id: number, value: number) =>
+      userSelectedAnswers.some(
+        (answer) => answer.questionId === id && answer.answer === value
+      ),
+    [userSelectedAnswers]
+  );
 
-    handleMultipleAnswerSubmit(id, multipleAnswers);
-  };
+  const handleMultipleAnswerChange = useCallback(
+    (id: number, indexAnswer: number) => {
+      setUserSelectedAnswers((prevAnswers) => {
+        const isCheckedQuestion = prevAnswers.some(
+          (answer) => answer.questionId === id
+        );
 
-  const handleMultipleAnswerSubmit = (
-    id: number,
-    multipleAnswers: {
-      id: number;
-      value: number;
-    }[]
-  ) => {
-    dispatch(
-      setAnswer({
-        questionId: id,
-        answer: multipleAnswers,
-      })
-    );
-  };
+        if (isCheckedQuestion) {
+          const updatedAnswers = prevAnswers.map((answer) => {
+            if (
+              answer.questionId === id &&
+              Array.isArray(answer.answer) &&
+              !answer.answer.includes(indexAnswer)
+            ) {
+              return { ...answer, answer: [...answer.answer, indexAnswer] };
+            } else if (
+              answer.questionId === id &&
+              Array.isArray(answer.answer) &&
+              answer.answer.includes(indexAnswer)
+            ) {
+              return {
+                ...answer,
+                answer: answer.answer.filter((item) => item !== indexAnswer),
+              };
+            } else {
+              return answer;
+            }
+          });
 
-  const handleNumberChange = (value: number, id: number) => {
-    setNumberAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [id]: value,
-    }));
-  };
+          return updatedAnswers;
+        } else {
+          return [...prevAnswers, { questionId: id, answer: [indexAnswer] }];
+        }
+      });
+    },
+    []
+  );
 
-  const handleKeyDownNumber = (
-    event: React.KeyboardEvent<HTMLInputElement>,
-    id: number,
-    numberAnswer: number
-  ) => {
-    if (event.key === 'Enter') {
-      handleSingleAnswerChange(id, numberAnswer);
-    }
-  };
+  const isCheckedMultiple = useCallback(
+    (id: number, value: number) =>
+      userSelectedAnswers.some(
+        (answer) =>
+          answer.questionId === id &&
+          Array.isArray(answer.answer) &&
+          answer.answer.some((answer) => answer === value)
+      ),
+    [userSelectedAnswers]
+  );
 
-  const handleModalOpen = () => {
+  const valueAnswerNumber = useCallback(
+    (id: number) => {
+      const answer = userSelectedAnswers.find(
+        (answer) => answer.questionId === id
+      );
+
+      const answerValue =
+        answer?.answer && typeof answer.answer === 'number' ? answer.answer : 0;
+
+      return answerValue;
+    },
+    [userSelectedAnswers]
+  );
+
+  const handleModalOpen = useCallback(() => {
     setIsModalOpen(!isModalOpen);
     if (userSelectedAnswers)
       setUserRightAnswers(checkAnswers(userSelectedAnswers, questions));
-  };
+  }, [isModalOpen, questions, userSelectedAnswers]);
 
-  const handleGetTests = () => {
+  const handleGetTests = useCallback(() => {
     navigate(`/`);
-  };
+  }, [navigate]);
 
-  const handleRetakeTest = () => {
-    setNumberAnswers([]);
-    setMultipleAnswers([]);
+  const handleRetakeTest = useCallback(() => {
     setIsModalOpen(!isModalOpen);
-    dispatch(clearAnswers());
-  };
+    setUserSelectedAnswers([]);
+  }, [isModalOpen]);
 
   useEffect(() => {
     if (idTest !== 0) {
@@ -161,26 +165,26 @@ const TestPage = () => {
                 </p>
                 {question.question_type === 'single' && (
                   <>
-                    {question.answers?.map((answer, indexAnswer) => (
+                    {question.answers.map((answer, indexAnswer) => (
                       <QuestionSingle
                         indexAnswer={indexAnswer}
-                        userSelectedAnswers={userSelectedAnswers}
                         questionId={question.id}
                         handleSingleAnswerChange={handleSingleAnswerChange}
                         answer={answer}
                         key={indexAnswer}
+                        isChecked={isCheckedSingle(question.id, indexAnswer)}
                       />
                     ))}
                   </>
                 )}
                 {question.question_type === 'multiple' && (
                   <>
-                    {question.answers?.map((answer, indexAnswer) => (
+                    {question.answers.map((answer, indexAnswer) => (
                       <QuestionMultiple
                         answer={answer}
                         indexAnswer={indexAnswer}
                         questionId={question.id}
-                        multipleAnswers={multipleAnswers}
+                        isChecked={isCheckedMultiple(question.id, indexAnswer)}
                         key={indexAnswer}
                         handleMultipleAnswerChange={handleMultipleAnswerChange}
                       />
@@ -190,10 +194,9 @@ const TestPage = () => {
                 {question.question_type === 'number' && (
                   <QuestionNumber
                     questionId={question.id}
-                    numberAnswers={numberAnswers}
-                    handleNumberChange={handleNumberChange}
-                    handleKeyDownNumber={handleKeyDownNumber}
+                    valueAnswerNumber={valueAnswerNumber(question.id)}
                     handleSingleAnswerChange={handleSingleAnswerChange}
+                    retryTest={isModalOpen}
                   />
                 )}
               </div>
@@ -202,7 +205,7 @@ const TestPage = () => {
           <button className={styles.BtnFinishTest} onClick={handleModalOpen}>
             Закончить прохождение теста
           </button>
-          <ModalCmp
+          <Modal
             width={560}
             isOpen={isModalOpen}
             handleCancel={handleRetakeTest}

@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks';
-import { isUser as user, isLoad } from 'models/users/selectors';
+import { user as customer, isLoad } from 'models/users/selectors';
 import { message } from 'antd';
-import { isError } from 'models/tests/selectors';
+import { error as errorText } from 'models/tests/selectors';
 
 import AuthPage from 'pages/AuthPage';
 import HomePage from 'pages/HomePage';
@@ -19,9 +19,9 @@ import './styles/app.sass';
 
 const App = () => {
   const loading = useAppSelector(isLoad);
-  const isUser = useAppSelector(user);
+  const user = useAppSelector(customer);
 
-  const error = useAppSelector(isError);
+  const error = useAppSelector(errorText);
 
   useEffect(() => {
     error && message.error(error, 4);
@@ -34,7 +34,7 @@ const App = () => {
   return (
     <>
       <Routes>
-        {isUser ? (
+        {user ? (
           <Route path="/" element={<Container />}>
             <Route index element={<HomePage />} />
             <Route path="signup" element={<Navigate to="/" />} />
@@ -42,11 +42,7 @@ const App = () => {
             <Route
               path="edit/:id"
               element={
-                isUser?.is_admin ? (
-                  <EditTestPage />
-                ) : (
-                  <Navigate to="/" replace />
-                )
+                user?.is_admin ? <EditTestPage /> : <Navigate to="/" replace />
               }
             />
             <Route path="/:id" element={<TestPage />} />

@@ -1,13 +1,10 @@
-import { QuestState } from 'models/tests/types';
+import { QuestionState } from 'models/tests/types';
 
-type UserAnswersType = {
-  questionId: number;
-  answer: number | { id: number; value: number }[];
-};
+import { UserAnswersType } from 'models/tests/types';
 
 export const checkAnswers = (
   userAnswers: UserAnswersType[],
-  questions: QuestState[]
+  questions: QuestionState[]
 ) => {
   const results: { [key: number]: boolean } = {};
 
@@ -28,15 +25,33 @@ export const checkAnswers = (
     } else if (
       userAnswer &&
       Array.isArray(userAnswer.answer) &&
-      question.answers &&
       question.question_type === 'multiple'
     ) {
       const selectedAnswers = userAnswer.answer.map(
-        (index) => question.answers && question.answers[index.value]
+        (index) => question.answers && question.answers[index]
       );
 
-      const isRightAnswer = selectedAnswers.every(
-        (selectedAnswer) => selectedAnswer && selectedAnswer.is_right
+      const isCountUserRightAnswer = selectedAnswers.every(
+        (selectedAnswer) => selectedAnswer && selectedAnswer.is_right === true
+      );
+
+      const isCountRightAnswer = question.answers?.filter(
+        (answer) => answer && answer.is_right === true
+      );
+
+      const isRightAnswer =
+        isCountUserRightAnswer &&
+        selectedAnswers.length === isCountRightAnswer?.length
+          ? true
+          : false;
+
+      console.log(
+        question.answers?.filter(
+          (answer) => answer && answer.is_right === true
+        ),
+        selectedAnswers.filter(
+          (selectedAnswer) => selectedAnswer && selectedAnswer.is_right === true
+        )
       );
 
       results[question.id] = isRightAnswer;
@@ -53,6 +68,7 @@ export const checkAnswers = (
     } else {
       results[question.id] = false;
     }
+    console.log(results);
   });
 
   const correctAnswersCount = Object.values(results).filter(

@@ -1,7 +1,5 @@
-import { QuestState, TestState } from 'models/tests/types';
-
-const api = 'https://interns-test-fe.snp.agency/api/v1';
-const scopeKey = 's-U6!x@$P>dAE.`r5W7q_#';
+import { QuestionState, TestState } from 'models/tests/types';
+import { api, scopeKey } from './api';
 
 export const newTestApi = async (title: string) => {
   const response = await fetch(`${api}/tests`, {
@@ -9,7 +7,7 @@ export const newTestApi = async (title: string) => {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
     body: JSON.stringify({
       title,
@@ -29,7 +27,7 @@ export const newQuestApi = async (
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
     body: JSON.stringify({
       title,
@@ -50,7 +48,7 @@ export const newAnswerApi = async (
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
     body: JSON.stringify({
       text,
@@ -68,19 +66,14 @@ export const getTestsApi = async (
 ) => {
   const queryParams = new URLSearchParams({});
 
+  queryParams.append('page', page.toString());
+  queryParams.append('per', per.toString());
+
   if (search) {
-    queryParams.append('page', page.toString());
-    queryParams.append('per', per.toString());
     queryParams.append('search', search);
   } else {
     if (sort) {
-      queryParams.append('page', page.toString());
-      queryParams.append('per', per.toString());
       queryParams.append('sort', sort);
-    } else if (page === 1) {
-    } else {
-      queryParams.append('page', page.toString());
-      queryParams.append('per', per.toString());
     }
   }
 
@@ -89,7 +82,7 @@ export const getTestsApi = async (
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
   });
 
@@ -102,24 +95,21 @@ export const getTestApi = async (id: number) => {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
   });
   return response;
 };
 
-export const editTestApi = async (
-  id: number,
-  updatedData: Partial<TestState>
-) => {
+export const editTestApi = async (id: number, title: string) => {
   const response = await fetch(`${api}/tests/${id}`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
-    body: JSON.stringify(updatedData),
+    body: JSON.stringify({ title: title }),
   });
 
   return response;
@@ -127,14 +117,14 @@ export const editTestApi = async (
 
 export const editQuestApi = async (
   id: number,
-  updatedData: Partial<QuestState>
+  updatedData: Partial<QuestionState>
 ) => {
   const response = await fetch(`${api}/questions/${id}`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
     body: JSON.stringify(updatedData),
   });
@@ -144,14 +134,14 @@ export const editQuestApi = async (
 
 export const editAnswerApi = async (
   id: number,
-  updatedData: Partial<QuestState>
+  updatedData: Partial<QuestionState>
 ) => {
   const response = await fetch(`${api}/answers/${id}`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
     body: JSON.stringify(updatedData),
   });
@@ -165,7 +155,7 @@ export const reorderAnswerApi = async (id: number, position: number) => {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
     body: JSON.stringify(position),
   });
@@ -179,7 +169,7 @@ export const deleteTestApi = async (id: number) => {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
   });
 
@@ -192,7 +182,7 @@ export const deleteQuestApi = async (id: number) => {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
   });
 
@@ -205,7 +195,7 @@ export const deleteAnswerApi = async (id: number) => {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'Scope-Key': `${scopeKey}`,
+      'Scope-Key': scopeKey,
     },
   });
 

@@ -49,7 +49,7 @@ import {
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
   AnswerState,
-  QuestState,
+  QuestionState,
   SearchState,
   TestState,
   TestsState,
@@ -153,11 +153,11 @@ function* watchGetTest() {
   yield takeEvery(GET_TEST, getTestSaga);
 }
 
-function* editTestSaga(action: PayloadAction<TestState>) {
+function* editTestSaga(action: PayloadAction<{ title: string; id: number }>) {
   try {
     const id = action.payload.id;
-    const test = action.payload;
-    const response: Response = yield editTestApi(id, test);
+    const title = action.payload.title;
+    const response: Response = yield editTestApi(id, title);
 
     if (!response.ok) {
       const errorResponse: { error: string } = yield response.json();
@@ -235,7 +235,7 @@ function* addQuestionSaga(
       throw new Error(errorResponse.error || 'Ошибка при добавлении вопроса');
     }
 
-    const payload: QuestState = yield response.json();
+    const payload: QuestionState = yield response.json();
 
     yield put(addQuestionSuccess(payload));
   } catch (error: any) {
@@ -256,7 +256,7 @@ function* watchAddQuestion() {
   yield takeEvery(NEW_QUESTION, addQuestionSaga);
 }
 
-function* editQuestionSaga(action: PayloadAction<Partial<QuestState>>) {
+function* editQuestionSaga(action: PayloadAction<Partial<QuestionState>>) {
   try {
     const question = action.payload;
     const id = question.id;
@@ -271,7 +271,7 @@ function* editQuestionSaga(action: PayloadAction<Partial<QuestState>>) {
         );
       }
 
-      const editQuestion: QuestState = yield response.json();
+      const editQuestion: QuestionState = yield response.json();
       yield put(editQuestionSuccess(editQuestion));
     }
   } catch (error: any) {

@@ -2,15 +2,16 @@ import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
-import { isTest } from 'models/tests/selectors';
+import { test as testEdit } from 'models/tests/selectors';
 import { questionValid, questionTitleValid } from 'utils/validation';
 import { editQuestion, reorderAnswer } from 'models/tests';
-import { QuestState } from 'models/tests/types';
+import { QuestionState } from 'models/tests/types';
 
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Button } from 'antd';
 import AnswerEdit from 'components/AnswerEdit';
 import FormAddAnswer from './FormAddAnswer';
+import ResetForm from './ResetForm';
 
 import styles from './Form.module.sass';
 
@@ -20,7 +21,6 @@ import {
   Draggable,
   DropResult,
 } from 'react-beautiful-dnd';
-import ResetForm from './ResetForm';
 
 interface Values {
   id: number;
@@ -36,7 +36,7 @@ interface Props {
   setErrorText: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const FormEditQuestion: React.FC<Values & Props> = ({
+const FormEditQuestion = ({
   id,
   title,
   question_type,
@@ -44,7 +44,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
   countIsRight,
   setErrorText,
   errorText,
-}) => {
+}: Values & Props) => {
   const [initialValues, setInitialValues] = useState<Values>({
     id,
     title,
@@ -55,8 +55,8 @@ const FormEditQuestion: React.FC<Values & Props> = ({
 
   const dispatch = useAppDispatch();
 
-  const test = useAppSelector(isTest);
-  const isIdQuestion = id;
+  const test = useAppSelector(testEdit);
+  const idQuestion = id;
   const question = test?.questions.find((question) => question.id === id);
 
   const handleShowForm = () => {
@@ -88,7 +88,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
           values: Values,
           { setSubmitting }: FormikHelpers<Values>
         ) => {
-          const { id, title }: Partial<QuestState> = values;
+          const { id, title }: Partial<QuestionState> = values;
           dispatch(editQuestion({ id, title, question_type, answer }));
           setInitialValues(values);
           setSubmitting(false);
@@ -97,61 +97,20 @@ const FormEditQuestion: React.FC<Values & Props> = ({
       >
         {({ errors, touched }) => (
           <Form className={classNames(styles.FormQuestion)}>
-            {question_type === 'single' && (
-              <>
-                <label className={classNames(styles.LabelQuestion)}>
-                  <Field
-                    type="text"
-                    autoComplete="off"
-                    className={classNames(styles.FieldEdit, styles.Field)}
-                    name="title"
-                    placeholder="Введите вопрос"
-                  />
-                  {errors.title && touched.title ? (
-                    <div className={classNames(styles.Error)}>
-                      {errors.title}
-                    </div>
-                  ) : null}
-                </label>
-              </>
-            )}
-            {question_type === 'multiple' && (
-              <>
-                <label className={classNames(styles.LabelQuestion)}>
-                  <Field
-                    type="text"
-                    autoComplete="off"
-                    className={classNames(styles.FieldEdit, styles.Field)}
-                    name="title"
-                    placeholder="Введите вопрос"
-                  />
-                  {errors.title && touched.title ? (
-                    <div className={classNames(styles.Error)}>
-                      {errors.title}
-                    </div>
-                  ) : null}
-                </label>
-              </>
-            )}
-
-            {question_type === 'number' && (
-              <>
-                <label className={classNames(styles.LabelQuestion)}>
-                  <Field
-                    type="text"
-                    autoComplete="off"
-                    className={classNames(styles.FieldEdit, styles.Field)}
-                    name="title"
-                    placeholder="Введите вопрос"
-                  />
-                  {errors.title && touched.title ? (
-                    <div className={classNames(styles.Error)}>
-                      {errors.title}
-                    </div>
-                  ) : null}
-                </label>
-              </>
-            )}
+            <>
+              <label className={classNames(styles.LabelQuestion)}>
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  className={classNames(styles.FieldEdit, styles.Field)}
+                  name="title"
+                  placeholder="Введите вопрос"
+                />
+                {errors.title && touched.title ? (
+                  <div className={classNames(styles.Error)}>{errors.title}</div>
+                ) : null}
+              </label>
+            </>
 
             <Button
               className={classNames(styles.ButtonEdit)}
@@ -166,62 +125,57 @@ const FormEditQuestion: React.FC<Values & Props> = ({
         )}
       </Formik>
 
-      {question &&
-        question.answers &&
-        question?.answers?.length > 0 &&
-        question.question_type !== 'number' && (
-          <>
-            <h2 className={styles.TitleAnswerList}>Список ответов</h2>
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="droppable">
-                {(provided) => (
-                  <div
-                    className={styles.EditAnswerList}
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                  >
-                    {question &&
-                      question.answers &&
-                      question.answers.map(
-                        ({ text, is_right, id }, index: number) => (
-                          <Draggable
-                            key={id}
-                            draggableId={id.toString()}
-                            index={index}
-                          >
-                            {(provided) => (
-                              <div
-                                className={styles.AnswerEdit}
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                              >
-                                <AnswerEdit
-                                  title={title}
-                                  answer={answer}
-                                  id={id}
-                                  text={text}
-                                  is_right={is_right}
-                                  idQuestion={isIdQuestion}
-                                  question_type={question_type}
-                                  index={index}
-                                />
-                              </div>
-                            )}
-                          </Draggable>
-                        )
-                      )}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </>
-        )}
-      {question?.question_type === 'number' && (
+      {question && question.question_type !== 'number' && (
+        <>
+          <h2 className={styles.TitleAnswerList}>Список ответов</h2>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="droppable">
+              {(provided) => (
+                <div
+                  className={styles.EditAnswerList}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {question &&
+                    question.answers.map(
+                      ({ text, is_right, id }, index: number) => (
+                        <Draggable
+                          key={id}
+                          draggableId={id.toString()}
+                          index={index}
+                        >
+                          {(provided) => (
+                            <div
+                              className={styles.AnswerEdit}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <AnswerEdit
+                                title={title}
+                                answer={answer}
+                                id={id}
+                                text={text}
+                                is_right={is_right}
+                                idQuestion={idQuestion}
+                                question_type={question_type}
+                                index={index}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      )
+                    )}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </>
+      )}
+      {question && question.question_type === 'number' && (
         <>
           {question &&
-            question.answers &&
             question.answers.map(({ text, is_right, id }, index: number) => (
               <AnswerEdit
                 title={title}
@@ -229,7 +183,7 @@ const FormEditQuestion: React.FC<Values & Props> = ({
                 id={id}
                 text={text}
                 is_right={is_right}
-                idQuestion={isIdQuestion}
+                idQuestion={idQuestion}
                 question_type={question_type}
                 index={index}
                 key={id}
@@ -237,25 +191,25 @@ const FormEditQuestion: React.FC<Values & Props> = ({
             ))}
         </>
       )}
-      {question?.question_type !== 'number' ||
-      (question?.question_type === 'number' &&
-        question.answers &&
-        question?.answers?.length === 0) ? (
-        <div className={styles.BlockAddAnswer}>
-          <Button className={styles.BtnAddAnswer} onClick={handleShowForm}>
-            Добавить ответ
-          </Button>
-          {showFormAddAnswer && question && question.answers && (
-            <FormAddAnswer
-              title={title}
-              answer={question.answers.length}
-              idQuestion={id}
-              question_type={question_type}
-              setShowFormAddAnswer={setShowFormAddAnswer}
-            />
-          )}
-        </div>
-      ) : null}
+      {(question && question.question_type !== 'number') ||
+        (question &&
+          question.question_type === 'number' &&
+          question.answers.length === 0 && (
+            <div className={styles.BlockAddAnswer}>
+              <Button className={styles.BtnAddAnswer} onClick={handleShowForm}>
+                Добавить ответ
+              </Button>
+              {showFormAddAnswer && question && question.answers && (
+                <FormAddAnswer
+                  title={title}
+                  answer={question.answers.length}
+                  idQuestion={id}
+                  question_type={question_type}
+                  setShowFormAddAnswer={setShowFormAddAnswer}
+                />
+              )}
+            </div>
+          ))}
       {errorText && <p className={styles.ErrorText}>{errorText}</p>}
     </div>
   );

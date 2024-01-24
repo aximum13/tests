@@ -8,7 +8,7 @@ interface Props {
   setIsSubmit: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ResetForm = ({ isSubmit, setIsSubmit }: Props) => {
+const useResetForm = ({ isSubmit, setIsSubmit }: Props) => {
   const { resetForm } = useFormikContext();
 
   const isOpen = useAppSelector(isOpenModal);
@@ -22,6 +22,5 @@ const ResetForm = ({ isSubmit, setIsSubmit }: Props) => {
       setIsSubmit(false);
     }
   }, [resetForm, isOpen, isSubmit, setIsSubmit]);
-  return null;
 };
-export default ResetForm;
+export default useResetForm;

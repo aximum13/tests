@@ -1,27 +1,28 @@
 import { AnswerState } from 'models/tests/types';
-import { UserAnswersType } from 'models/playTests/types';
 
 import styles from './QuestionPlay.module.sass';
+import { useCallback } from 'react';
 
 interface Props {
   indexAnswer: number;
   questionId: number;
-  userSelectedAnswers: UserAnswersType[] | undefined;
+  isChecked: boolean;
   answer: AnswerState;
   handleSingleAnswerChange: (id: number, value: number) => void;
 }
 
-const QuestionSingle: React.FC<Props> = ({
+const QuestionSingle = ({
   indexAnswer,
-  userSelectedAnswers,
   questionId,
   handleSingleAnswerChange,
-
+  isChecked,
   answer,
-}) => {
-  const isChecked = userSelectedAnswers?.some(
-    (answer) =>
-      answer.questionId === questionId && answer.answer === indexAnswer
+}: Props) => {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      handleSingleAnswerChange(questionId, +e.target.value);
+    },
+    [handleSingleAnswerChange, questionId]
   );
 
   return (
@@ -32,7 +33,7 @@ const QuestionSingle: React.FC<Props> = ({
         name={`question-${questionId}`}
         value={indexAnswer}
         checked={isChecked}
-        onChange={(e) => handleSingleAnswerChange(questionId, +e.target.value)}
+        onChange={handleChange}
       />
       {
         <p>

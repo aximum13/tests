@@ -1,0 +1,30 @@
+.TestItem
+    display: grid
+    grid-template-columns: 3fr 1fr auto
+    align-items: center
+    gap: 30px
+    padding: 10px
+    background-color: rgb(247, 255, 254)
+
+    &User
+        grid-template-columns: 1fr auto
+        gap: 70px
+
+    &:nth-child(2n)
+        background-color: rgb(241, 247, 239)
+        border-top: none
+        border-bottom: none
+
+    @media (max-width: 767px)
+        grid-template-columns: 1fr
+        gap: 16px
+
+.TestInfo
+    display: flex
+    justify-content: space-between
+
+.TestTitle
+    text-align: left
+
+.noValidTest
+    color: #007bff

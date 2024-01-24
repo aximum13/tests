@@ -1,5 +1,4 @@
 import { Button, Modal } from 'antd';
-import { ReactNode } from 'react';
 
 import styles from './ModalChoice.module.sass';
 
@@ -7,25 +6,23 @@ interface ModalTypes {
   isOpen?: boolean;
   handleOk?: () => void;
   handleCancel?: () => void;
-  className?: string;
   title?: string;
-  footer?: ReactNode;
   width?: number;
   textOk?: string;
   textCancel?: string;
 }
 
-const ModalChoice: React.FC<ModalTypes> = ({
+const ModalChoice = ({
   isOpen,
   handleOk,
   handleCancel,
-  className,
+
   title,
-  footer,
+
   width,
   textOk,
   textCancel,
-}) => {
+}: ModalTypes) => {
   return (
     <Modal
       width={width}

@@ -4,7 +4,6 @@ import { all } from 'redux-saga/effects';
 
 import userReducer from 'models/users';
 import testsReducer from 'models/tests';
-import playTestsReducer from 'models/playTests';
 
 import usersSaga from 'models/users/sagas';
 import testsSaga from 'models/tests/sagas';
@@ -12,7 +11,6 @@ import testsSaga from 'models/tests/sagas';
 const rootReducer = combineReducers({
   users: userReducer,
   tests: testsReducer,
-  playTest: playTestsReducer,
 });
 
 function* rootSaga() {

@@ -1,6 +1,6 @@
 export type AllTestsState = {
   testsData: TestsState;
-  test?: TestState | null;
+  test: TestState | null;
   error?: string | null;
   loading?: boolean;
   isReady?: boolean;
@@ -15,17 +15,19 @@ export type TestsState = {
 export type TestState = {
   id: number;
   created_at: string;
-  questions: QuestState[];
+  questions: QuestionState[];
   title: string;
 };
 
-export type QuestState = {
+export type QuestionState = {
   id: number;
   title: string;
   question_type: string;
   answer: number;
-  answers?: AnswerState[];
+  answers: AnswerState[];
 };
+
+export type NewQuestionState = Omit<QuestionState, 'answers'>;
 
 export type AnswerState = {
   id: number;
@@ -39,4 +41,9 @@ export type SearchState = {
   per: number;
   search: string;
   sort: string;
+};
+
+export type UserAnswersType = {
+  questionId: number;
+  answer: number | number[];
 };
